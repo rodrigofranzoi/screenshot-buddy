@@ -15,7 +15,12 @@ targets:
     type: application
     platform: macOS
     sources:
-      - ScreenshotBuddy
+      - path: ScreenshotBuddy
+        excludes:
+          - Resources/GoogleService-Info.plist
+    resources:
+      - path: ScreenshotBuddy/Resources/GoogleService-Info.plist
+      - path: ScreenshotBuddy/Resources/Localizable.xcstrings
     dependencies:
       - package: shared-buddy
         product: BuddyCore
@@ -32,6 +37,7 @@ targets:
       CODE_SIGN_ENTITLEMENTS: ScreenshotBuddy/ScreenshotBuddy.entitlements
       LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
       ENABLE_TESTABILITY: true
+      OTHER_LDFLAGS: "$(inherited) -ObjC"
     scheme:
       testTargets:
         - ScreenshotBuddyTests

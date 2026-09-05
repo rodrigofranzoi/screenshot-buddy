@@ -9,9 +9,13 @@
 /* Begin PBXBuildFile section */
 		04D2B4500B95FCACF05FB363 /* BuddyCore in Frameworks */ = {isa = PBXBuildFile; productRef = 15CE0F06B3BF3494CF1F23D0 /* BuddyCore */; };
 		327EBA887E0B3C17567D34DF /* ScreenshotBuddyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BD81434DE896347C8D2109F /* ScreenshotBuddyUITests.swift */; };
+		49B64E16FBF5CC6FE0504201 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 140E62DDD81F86D516CC1477 /* FirebaseAnalytics */; };
 		49DBC25B362B3FA4BBA1290C /* BuddyLocalization in Frameworks */ = {isa = PBXBuildFile; productRef = BD58E11E8DB9DD31FF239DD4 /* BuddyLocalization */; };
 		59DFA97E8A70DA383B484B14 /* ScreenshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA4B53B7A47329ECF33D6EE /* ScreenshotStore.swift */; };
+		68A1F55785429599D9D9922D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 57584956330669958F2B0F8E /* GoogleService-Info.plist */; };
 		6EEC655F36FF6656B3846FA4 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D3C08224309EE847A31FB2DF /* Localizable.xcstrings */; };
+		79C372FA8750518ADB7892A6 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2026B4EE82E97DA1DC3A6BDE /* FirebaseCore */; };
+		9B486F23E021AE3977905584 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 91C256F3BBA04D6E6471450D /* FirebaseCrashlytics */; };
 		AAEC1727921722293103083C /* ScreenshotStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 110AAD64BE6517765A830F71 /* ScreenshotStoreTests.swift */; };
 		AC4E4CBAE465BF7812139D84 /* BuddyCore in Frameworks */ = {isa = PBXBuildFile; productRef = BB045ADEEB6A2B20B37B1371 /* BuddyCore */; };
 		AF56A6414850DE0D8DDEB6D8 /* ScreenshotBuddyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C35A0E90E0B60DB273311171 /* ScreenshotBuddyApp.swift */; };
@@ -44,6 +48,7 @@
 		34F79C51466CC7D0F485CD6B /* ScreenshotBuddyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScreenshotBuddyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3EA4836C993C806119453C51 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3EC34CD20562F09D9419847D /* ScreenshotBuddy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScreenshotBuddy.entitlements; sourceTree = "<group>"; };
+		57584956330669958F2B0F8E /* GoogleService-Info.plist */ = {isa = PBXFileReference; explicitFileType = text.plist; lastKnownFileType = text.plist; name = "GoogleService-Info.plist"; path = "Resources/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5FA4B53B7A47329ECF33D6EE /* ScreenshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotStore.swift; sourceTree = "<group>"; };
 		64E2DF8C69069280FC527D1D /* shared-buddy */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "shared-buddy"; path = "Vendor/shared-buddy"; sourceTree = SOURCE_ROOT; };
 		7BD81434DE896347C8D2109F /* ScreenshotBuddyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotBuddyUITests.swift; sourceTree = "<group>"; };
@@ -63,6 +68,9 @@
 				BE8B6D393B6B72534B4A4EA5 /* BuddyUI in Frameworks */,
 				B2D2B3DF5D5F3ED22581335B /* BuddyFirebase in Frameworks */,
 				49DBC25B362B3FA4BBA1290C /* BuddyLocalization in Frameworks */,
+				79C372FA8750518ADB7892A6 /* FirebaseCore in Frameworks */,
+				49B64E16FBF5CC6FE0504201 /* FirebaseAnalytics in Frameworks */,
+				9B486F23E021AE3977905584 /* FirebaseCrashlytics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,6 +95,7 @@
 				C35A0E90E0B60DB273311171 /* ScreenshotBuddyApp.swift */,
 				5FA4B53B7A47329ECF33D6EE /* ScreenshotStore.swift */,
 				BC3296DF593D68814DA724D2 /* Resources */,
+				57584956330669958F2B0F8E /* GoogleService-Info.plist */,
 			);
 			path = ScreenshotBuddy;
 			sourceTree = "<group>";
@@ -154,6 +163,7 @@
 				A50EFB274BF708A5BD0201C2 /* Sources */,
 				189DF566BEE8FF8B830C81EC /* Resources */,
 				3EE653496390BA7714E9922B /* Frameworks */,
+				24A7818C7749D4D7F383C512 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -165,6 +175,9 @@
 				50B5C56270731BFDC618CC34 /* BuddyUI */,
 				FD44EC0B7A86910FBA762EC4 /* BuddyFirebase */,
 				BD58E11E8DB9DD31FF239DD4 /* BuddyLocalization */,
+				2026B4EE82E97DA1DC3A6BDE /* FirebaseCore */,
+				140E62DDD81F86D516CC1477 /* FirebaseAnalytics */,
+				91C256F3BBA04D6E6471450D /* FirebaseCrashlytics */,
 			);
 			productName = ScreenshotBuddy;
 			productReference = AC67956853FD863036A36A7E /* ScreenshotBuddy.app */;
@@ -241,6 +254,7 @@
 			mainGroup = D0CFE52E40220DE2D6631438;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				1939ECE83624E774B57BF481 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				776E7E0582940ADA2DE5FC9B /* XCLocalSwiftPackageReference "Vendor/shared-buddy" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -261,10 +275,33 @@
 			buildActionMask = 2147483647;
 			files = (
 				6EEC655F36FF6656B3846FA4 /* Localizable.xcstrings in Resources */,
+				68A1F55785429599D9D9922D /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		24A7818C7749D4D7F383C512 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
+				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}.debug.dylib",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		6B3F635C23F183FD05EC622C /* Sources */ = {
@@ -417,7 +454,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -490,6 +527,10 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ScreenshotBuddy/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				OTHER_LDFLAGS = (
+					"$(inherited) -ObjC",
+					"-ObjC",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.buddy.screenshot;
 				SDKROOT = macosx;
 			};
@@ -505,6 +546,10 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ScreenshotBuddy/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				OTHER_LDFLAGS = (
+					"$(inherited) -ObjC",
+					"-ObjC",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.buddy.screenshot;
 				SDKROOT = macosx;
 			};
@@ -575,14 +620,40 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		1939ECE83624E774B57BF481 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.18.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		140E62DDD81F86D516CC1477 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1939ECE83624E774B57BF481 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
 		15CE0F06B3BF3494CF1F23D0 /* BuddyCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyCore;
 		};
+		2026B4EE82E97DA1DC3A6BDE /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1939ECE83624E774B57BF481 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
 		50B5C56270731BFDC618CC34 /* BuddyUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BuddyUI;
+		};
+		91C256F3BBA04D6E6471450D /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1939ECE83624E774B57BF481 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
 		};
 		BB045ADEEB6A2B20B37B1371 /* BuddyCore */ = {
 			isa = XCSwiftPackageProductDependency;
