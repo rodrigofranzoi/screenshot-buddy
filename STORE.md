@@ -21,3 +21,8 @@ Menu bar access to recent shots. Built for macOS accessibility.
 ## Google Play
 
 N/A — macOS only.
+
+## Legal URLs (App Store Connect)
+
+- Privacy: https://rodrigofranzoi.github.io/screenshot-buddy/privacy.html
+- Terms: https://rodrigofranzoi.github.io/screenshot-buddy/terms.html
