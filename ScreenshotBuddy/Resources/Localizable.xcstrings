@@ -1,0 +1,48 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Gallery" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Gallery" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Galerij" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Galeria" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Galería" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Galerie" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Galleria" } },
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "المعرض" } },
+        "zh" : { "stringUnit" : { "state" : "translated", "value" : "图库" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Галерея" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ギャラリー" } }
+      }
+    },
+    "Paste" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Paste" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Plakken" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Colar" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Pegar" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Coller" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Incolla" } },
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "لصق" } },
+        "zh" : { "stringUnit" : { "state" : "translated", "value" : "粘贴" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Вставить" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ペースト" } }
+      }
+    },
+    "Copy" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copy" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Kopiëren" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Copiar" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Copiar" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Copier" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Copia" } },
+        "ar" : { "stringUnit" : { "state" : "translated", "value" : "نسخ" } },
+        "zh" : { "stringUnit" : { "state" : "translated", "value" : "复制" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Копировать" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "コピー" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

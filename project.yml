@@ -1,0 +1,58 @@
+name: ScreenshotBuddy
+options:
+  bundleIdPrefix: com.buddy
+  deploymentTarget:
+    macOS: "13.0"
+  createIntermediateGroups: true
+settings:
+  SWIFT_VERSION: "5.9"
+  MACOSX_DEPLOYMENT_TARGET: "13.0"
+packages:
+  shared-buddy:
+    path: Vendor/shared-buddy
+targets:
+  ScreenshotBuddy:
+    type: application
+    platform: macOS
+    sources:
+      - ScreenshotBuddy
+    dependencies:
+      - package: shared-buddy
+        product: BuddyCore
+      - package: shared-buddy
+        product: BuddyUI
+      - package: shared-buddy
+        product: BuddyFirebase
+      - package: shared-buddy
+        product: BuddyLocalization
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.buddy.screenshot
+      INFOPLIST_FILE: ScreenshotBuddy/Info.plist
+      GENERATE_INFOPLIST_FILE: false
+      CODE_SIGN_ENTITLEMENTS: ScreenshotBuddy/ScreenshotBuddy.entitlements
+      LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
+      ENABLE_TESTABILITY: true
+    scheme:
+      testTargets:
+        - ScreenshotBuddyTests
+        - ScreenshotBuddyUITests
+  ScreenshotBuddyTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - ScreenshotBuddyTests
+    dependencies:
+      - target: ScreenshotBuddy
+      - package: shared-buddy
+        product: BuddyCore
+    settings:
+      GENERATE_INFOPLIST_FILE: true
+  ScreenshotBuddyUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources:
+      - ScreenshotBuddyUITests
+    dependencies:
+      - target: ScreenshotBuddy
+    settings:
+      GENERATE_INFOPLIST_FILE: true
