@@ -1,5 +1,6 @@
 import SwiftUI
 import BuddyFirebase
+import BuddyUI
 
 @main
 struct ScreenshotBuddyApp: App {
@@ -16,6 +17,16 @@ struct ScreenshotBuddyApp: App {
             GalleryView()
                 .environmentObject(store)
                 .frame(minWidth: 800, minHeight: 520)
+        }
+        Settings {
+            Form {
+                Section("Startup") {
+                    BuddyLaunchAtLoginToggle()
+                }
+            }
+            .formStyle(.grouped)
+            .frame(width: 420, height: 160)
+            .accessibilityIdentifier("screenshot-settings")
         }
     }
 }

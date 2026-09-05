@@ -14,22 +14,42 @@ final class ScreenshotStore: ObservableObject {
     @Published var selectedId: UUID?
     @Published var draftNotes: String = ""
 
-    private let key = "screenshot.items"
+    private let database: BuddyDatabase?
+    private let legacyKey = "screenshot.items"
 
     var selected: ScreenshotItem? {
         items.first { $0.id == selectedId }
     }
 
-    init() { load() }
+    init() {
+        database = try? BuddyDatabase(appFolderName: "ScreenshotBuddy")
+        load()
+    }
 
     func importFromPasteboard() {
         let pb = NSPasteboard.general
         if let image = NSImage(pasteboard: pb), let tiff = image.tiffRepresentation {
-            addImageData(tiff, title: "Pasted screenshot")
+            if ContentSafety.evaluate(imageData: tiff).isBlocked {
+                handleBlockedContent()
+                return
+            }
+            addImageDataUnchecked(tiff, title: "Pasted screenshot")
         }
     }
 
     func addImageData(_ data: Data, title: String) {
+        if ContentSafety.evaluate(imageData: data).isBlocked {
+            handleBlockedContent()
+            return
+        }
+        if ContentSafety.evaluate(text: draftNotes).isBlocked {
+            handleBlockedContent()
+            return
+        }
+        addImageDataUnchecked(data, title: title)
+    }
+
+    private func addImageDataUnchecked(_ data: Data, title: String) {
         var tags: [ContentTag] = [.image]
         var notes = draftNotes
         let tagged = ContentTagger.tag(text: draftNotes)
@@ -44,7 +64,16 @@ final class ScreenshotStore: ObservableObject {
         save()
     }
 
+    private func handleBlockedContent() {
+        BuddyFirebase.log(event: BuddyFirebase.Event.contentBlocked)
+        ContentSafety.notifyBlocked()
+    }
+
     func updateNotes(_ notes: String, for id: UUID) {
+        if ContentSafety.evaluate(text: notes).isBlocked {
+            handleBlockedContent()
+            return
+        }
         guard let idx = items.firstIndex(where: { $0.id == id }) else { return }
         items[idx].notes = notes
         let tagged = ContentTagger.tag(text: notes)
@@ -124,14 +153,22 @@ final class ScreenshotStore: ObservableObject {
     }
 
     private func save() {
-        if let data = try? JSONEncoder().encode(items) {
-            UserDefaults.standard.set(data, forKey: key)
-        }
+        guard let database else { return }
+        try? database.saveSealedJSON(items, for: .screenshots)
     }
 
     private func load() {
-        if let data = UserDefaults.standard.data(forKey: key),
-           let decoded = try? JSONDecoder().decode([ScreenshotItem].self, from: data) {
+        if let database {
+            if let loaded = database.loadSealedJSONIfPresent([ScreenshotItem].self, for: .screenshots) {
+                items = loaded
+            } else if let data = UserDefaults.standard.data(forKey: legacyKey),
+                      let decoded = try? JSONDecoder().decode([ScreenshotItem].self, from: data) {
+                items = decoded
+                try? database.saveSealedJSON(items, for: .screenshots)
+                UserDefaults.standard.removeObject(forKey: legacyKey)
+            }
+        } else if let data = UserDefaults.standard.data(forKey: legacyKey),
+                  let decoded = try? JSONDecoder().decode([ScreenshotItem].self, from: data) {
             items = decoded
         }
     }

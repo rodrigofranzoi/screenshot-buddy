@@ -17,6 +17,20 @@ final class ScreenshotStoreTests: XCTestCase {
         XCTAssertFalse(store.items.isEmpty)
         XCTAssertTrue(store.items.first?.tags.contains(.iban) ?? false)
     }
+
+    @MainActor
+    func testBlocksSexualNotesOnImport() {
+        let store = ScreenshotStore()
+        store.draftNotes = "free porn video"
+        let before = store.items.count
+        let image = NSImage(size: NSSize(width: 10, height: 10))
+        image.lockFocus()
+        NSColor.blue.setFill()
+        NSRect(x: 0, y: 0, width: 10, height: 10).fill()
+        image.unlockFocus()
+        store.addImageData(image.tiffRepresentation!, title: "Blocked")
+        XCTAssertEqual(store.items.count, before)
+    }
 }
 
 import AppKit

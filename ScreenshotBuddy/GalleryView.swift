@@ -153,21 +153,33 @@ struct EditorPane: View {
 
 struct MenuBarGalleryView: View {
     @EnvironmentObject private var store: ScreenshotStore
+    @EnvironmentObject private var pause: BuddyPauseController
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
+            if pause.isPaused {
+                Text(pause.statusSummary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding([.horizontal, .top])
+            }
             Text("Recent shots")
                 .font(.headline)
-                .padding([.horizontal, .top])
+                .padding([.horizontal, pause.isPaused ? .bottom : .top])
             ForEach(store.items.prefix(8)) { item in
                 MenuBarRow(title: item.title, subtitle: item.createdAt.formatted()) {
+                    guard !pause.isPaused else { return }
                     store.selectedId = item.id
                     store.copyToClipboard(item)
                 }
                 .padding(.horizontal)
+                .opacity(pause.isPaused ? 0.45 : 1)
+                .disabled(pause.isPaused)
             }
-            Spacer()
+            Spacer(minLength: 0)
+            BuddyPauseControls(pause: pause)
         }
         .accessibilityIdentifier("menu-bar-gallery")
     }
 }
+
