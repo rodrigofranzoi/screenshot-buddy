@@ -1,6 +1,7 @@
 import SwiftUI
 import BuddyFirebase
 import BuddyUI
+import BuddyCore
 
 @main
 struct ScreenshotBuddyApp: App {
@@ -12,20 +13,45 @@ struct ScreenshotBuddyApp: App {
         BuddyFirebase.log(event: BuddyFirebase.Event.appLaunch)
     }
 
+    private let brand = BuddyBrand.screenshotBuddy
+    private let settingsItems: [BuddySettingsItem] = [
+        .appearance,
+        .preferences,
+        .privacy
+    ]
+
     var body: some Scene {
         WindowGroup("Screenshot Buddy") {
             GalleryView()
                 .environmentObject(store)
                 .frame(minWidth: 800, minHeight: 520)
+                .background(BuddyMainWindowRegistrar())
+                .buddyAppearance(brand: brand)
         }
         Settings {
-            Form {
-                Section("Startup") {
-                    BuddyLaunchAtLoginToggle()
+            BuddySettingsSidebarView(brand: brand, items: settingsItems) { item in
+                switch item.id {
+                case BuddySettingsItem.appearance.id:
+                    BuddyAppearanceSettingsSection(brand: brand)
+                case BuddySettingsItem.preferences.id:
+                    ScreenshotHistorySettingsSection {
+                        store.applyHistoryLimits()
+                    }
+                    BuddyPauseSettingsSection()
+                    AutoBlurSettingsSection()
+                    BuddyClearHistorySettingsSection(itemNoun: "screenshots") {
+                        store.clearAllHistory()
+                    }
+                    Section("Startup") {
+                        BuddyLaunchAtLoginToggle()
+                    }
+                case BuddySettingsItem.privacy.id:
+                    SensitivePrivacySettingsSection()
+                    BuddyLegalLinksSection(brand: brand)
+                default:
+                    EmptyView()
                 }
             }
-            .formStyle(.grouped)
-            .frame(width: 420, height: 160)
             .accessibilityIdentifier("screenshot-settings")
         }
     }

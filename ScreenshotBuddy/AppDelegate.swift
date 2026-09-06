@@ -1,18 +1,34 @@
 import AppKit
 import SwiftUI
 import BuddyCore
+import BuddyUI
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private var popover: NSPopover?
+    var store: ScreenshotStore?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         BuddyLaunchAtLogin.enableByDefaultOnFirstInstall()
+        BuddyAppearanceSettings.applyAppKitAppearance()
 
         let store = ScreenshotStore.shared
+        self.store = store
         let pause = BuddyPauseController.shared
+
+        pause.onPauseChanged = { [weak self] isPaused in
+            if isPaused {
+                self?.store?.stopMonitoring()
+            } else {
+                self?.store?.startMonitoring()
+            }
+            self?.updateStatusIcon()
+        }
         pause.restorePersistedPauseIfNeeded()
+        if !pause.isPaused {
+            store.startMonitoring()
+        }
 
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = item.button {
@@ -29,6 +45,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             rootView: MenuBarGalleryView()
                 .environmentObject(store)
                 .environmentObject(pause)
+                .buddyAppearance(brand: .screenshotBuddy)
         )
         self.popover = popover
 
@@ -41,6 +58,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.updateStatusIcon()
             }
         }
+
+        if BuddyMarketingCapture.isEnabled {
+            NSApp.setActivationPolicy(.regular)
+            ScreenshotMarketingCaptureRunner.startIfNeeded(store: store) { [weak self] in
+                self?.showPopoverForCapture()
+            }
+        } else {
+            BuddyMainWindow.hideOnLaunchIfNeeded()
+        }
+    }
+
+    @discardableResult
+    private func showPopoverForCapture() -> NSWindow? {
+        guard let button = statusItem?.button, let popover else { return nil }
+        if !popover.isShown {
+            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+            NSApp.activate(ignoringOtherApps: true)
+        }
+        return popover.contentViewController?.view.window
+    }
+
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        false
     }
 
     @objc private func togglePopover() {

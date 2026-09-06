@@ -5,16 +5,26 @@ Status: `planned` | `wip` | `done`
 | Feature | Status | Notes |
 |---------|--------|-------|
 | Screenshot gallery (import / paste / drop) | done | |
-| Quick editor (draw, text, blur, black box) | done | |
-| Sensitive content tagging + one-tap redact | done | OCR-lite heuristics on attached text notes |
+| Search gallery | done | Title, notes, OCR text, tags, annotations |
+| Quick editor (draw, text, blur, black box) | done | Gaussian blur redaction |
+| Sensitive content tagging + one-tap redact | done | Notes + OCR regions; auto-blur for share |
+| Smart tools: OCR copy, color pick | done | |
+| Auto-blur (editor section) | done | Sensitive types from General settings |
+| QR scan (editor section) | done | Lists every QR (text + links); open/copy |
+| Gallery blur + Touch ID / password unlock | done | Settings toggles; 10‑min unlock session |
 | Block pornography / sexual content | done | OCR + text policy; toolbar warning |
-| Save As / overwrite / copy to clipboard | done | |
-| Menu bar recent shots | done | |
+| Save As / overwrite / copy to clipboard | done | Auto-blurs sensitive regions when enabled |
+| Delete from gallery | done | List swipe / context menu / ⌘⌫ / editor; gallery copy only |
+| Menu bar recent shots | done | Count configurable in Preferences |
+| History limits (remember / menu bar) | done | Preferences steppers |
+| Erase all history (Settings + toolbar + menu bar) | done | Confirmation required |
+| Pause permanently | done | Settings + menu bar; survives relaunch |
 | Turn off until next session / timed / custom | done | Menu bar footer |
-| Launch at login (default on install) | done | Settings scene |
+| Open / Quit from menu bar | done | Opens gallery; terminates app |
+| Launch at login + privacy settings | done | Blur + require password for sensitive types |
 | Dashboard | done | |
 | Unit + UI tests | done | |
 | Localization (10 locales) | done | |
 | Firebase | done | |
 
-| Encrypted SQLite persistence (AES-GCM) | done | See ENCRYPTION.md |
+| UserDefaults persistence | done | Plain JSON; see ENCRYPTION.md |
