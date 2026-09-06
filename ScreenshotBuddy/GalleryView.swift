@@ -2282,11 +2282,11 @@ struct MenuBarGalleryView: View {
                 .contextMenu {
                     Button(role: .destructive) {
                         let alert = NSAlert()
-                        alert.messageText = "Delete Screenshot?"
-                        alert.informativeText = "This cannot be undone."
+                        alert.messageText = String(localized: "Delete Screenshot?")
+                        alert.informativeText = String(localized: "This cannot be undone.")
                         alert.alertStyle = .warning
-                        alert.addButton(withTitle: "Delete")
-                        alert.addButton(withTitle: "Cancel")
+                        alert.addButton(withTitle: String(localized: "Delete"))
+                        alert.addButton(withTitle: String(localized: "Cancel"))
                         if alert.runModal() == .alertFirstButtonReturn {
                             store.delete(item.id)
                         }
@@ -2304,7 +2304,7 @@ struct MenuBarGalleryView: View {
             BuddyClearHistoryButton(itemNoun: "screenshots") {
                 store.clearAllHistory()
             }
-            BuddyMenuBarAppControls(appName: "Screenshot Buddy")
+            BuddyMenuBarAppControls(appName: "Screenshot Buddy", brand: .screenshotBuddy)
         }
         .accessibilityIdentifier("menu-bar-gallery")
     }

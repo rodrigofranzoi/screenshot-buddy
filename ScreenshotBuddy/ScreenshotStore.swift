@@ -431,7 +431,7 @@ final class ScreenshotStore: ObservableObject {
     }
 
     func reveal(item: ScreenshotItem, completion: @escaping (Bool) -> Void) {
-        unlockSession.unlock(reason: "Reveal sensitive screenshot") { success in
+        unlockSession.unlock(reason: String(localized: "Reveal sensitive screenshot")) { success in
             if success {
                 BuddyFirebase.log(event: BuddyFirebase.Event.sensitiveRevealed)
             }
