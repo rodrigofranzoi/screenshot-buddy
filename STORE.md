@@ -15,6 +15,80 @@ Initial release.
 
 ---
 
+## App Review Notes (Apple)
+
+Paste into App Store Connect → App Review Information → Notes.
+
+```
+Screenshot Buddy is a macOS menu-bar (agent) app. There is no Dock icon by default (LSUIElement).
+
+NO LOGIN / DEMO ACCOUNT REQUIRED.
+
+How to review:
+1. Launch the app. Look for the camera.viewfinder icon in the macOS menu bar.
+2. Click the menu bar icon to open the recent-shots popover.
+3. Choose Open to show the main gallery window (or open from the popover controls).
+4. Add sample images: take a screenshot (⌘⇧3 / ⌘⇧4), copy an image and Paste, or drag & drop into the gallery.
+5. Select a shot to open the editor: annotate (draw / arrow / text), crop, blur, black-box, OCR copy, color pick, QR scan, and Auto-blur for detected secrets.
+6. Sensitive items may appear blurred. Reveal with Touch ID or the Mac login password (LocalAuthentication). Unlock lasts ~10 minutes.
+7. Settings (gear): history limits, privacy/blur tags, pause capture, launch at login.
+
+Permissions / entitlements:
+- App Sandbox enabled.
+- Pictures folder read/write (watches default screenshot save locations).
+- User-selected file access for Save As / import.
+- Network client: Firebase Analytics & Crashlytics only.
+
+Privacy:
+- Screenshot images, notes, and OCR text stay on device (UserDefaults). Never uploaded.
+- Analytics/Crashlytics do not include screenshot or clipboard payloads.
+- On-device policy blocks pornography / sexual content from import and copy.
+- Export compliance: exempt — HTTPS/TLS only (ITSAppUsesNonExemptEncryption = false).
+
+Contact: use the App Store Connect account owner email if anything is unclear.
+```
+
+---
+
+## TestFlight Notes
+
+### Beta App Description
+
+Paste into TestFlight → Test Information → Beta App Description.
+
+```
+Screenshot Buddy keeps your macOS screenshots in a searchable gallery with a fast editor, one-tap auto-blur for secrets, OCR, color pick, QR scan, and Touch ID for sensitive previews — plus recent shots in the menu bar.
+```
+
+### What to Test
+
+Paste into TestFlight → Test Information → What to Test.
+
+```
+Thanks for testing Screenshot Buddy!
+
+Please try:
+• Menu bar icon → recent shots popover → Open gallery
+• Capture with ⌘⇧3 / ⌘⇧4 (or paste / drop an image into the gallery)
+• Editor: draw, arrow, text, crop, blur, black-box
+• Auto-blur on a shot that contains a fake password / IBAN / card number
+• Smart tools: OCR copy text, pick a hex color, scan a QR code
+• Unlock a blurred sensitive preview with Touch ID or your Mac password
+• Pause capture from the menu bar, then resume
+• Save As / copy to clipboard / delete a shot
+• Settings: history limits and which sensitive types require unlock
+
+Report crashes, localization issues, and anything confusing in the gallery or editor.
+
+No account needed. All screenshot data stays on your Mac.
+```
+
+### Beta App Review (TestFlight)
+
+Same content as **App Review Notes** above if Apple requests Beta App Review Information. No demo account.
+
+---
+
 ## English (`en`)
 
 **Name:** Screenshot Buddy  
