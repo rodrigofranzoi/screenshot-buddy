@@ -4,6 +4,20 @@ options:
   deploymentTarget:
     macOS: "13.0"
   createIntermediateGroups: true
+  developmentLanguage: en
+  knownRegions:
+    - Base
+    - en
+    - de
+    - nl
+    - pt
+    - es
+    - fr
+    - it
+    - ar
+    - zh
+    - ru
+    - ja
 settings:
   SWIFT_VERSION: "5.9"
   MACOSX_DEPLOYMENT_TARGET: "13.0"

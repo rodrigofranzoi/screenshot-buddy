@@ -97,7 +97,7 @@ struct FloatingScreenshotHistoryView: View {
                             .id(item.id)
                             .listRowBackground(
                                 RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                    .fill(copiedItemId == item.id ? Color.green.opacity(0.28) : Color.clear)
+                                    .fill(copiedItemId == item.id ? BuddyTheme.BuddyColor.success.opacity(0.22) : Color.clear)
                                     .padding(.vertical, 1)
                             )
                         }
@@ -214,7 +214,7 @@ private struct FloatingScreenshotHistoryRow: View {
                         if isCopied {
                             Image(systemName: "checkmark.circle.fill")
                                 .symbolRenderingMode(.palette)
-                                .foregroundStyle(.white, .green)
+                                .foregroundStyle(.white, BuddyTheme.BuddyColor.success)
                                 .font(.system(size: 14, weight: .bold))
                                 .offset(x: 4, y: 4)
                         }
@@ -224,10 +224,10 @@ private struct FloatingScreenshotHistoryRow: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(isHidden ? "•••• Sensitive" : item.title)
                             .lineLimit(1)
-                            .foregroundStyle(isCopied ? Color.green : Color.primary)
+                            .foregroundStyle(isCopied ? BuddyTheme.BuddyColor.success : Color.primary)
                         Text(isCopied ? "Copied" : item.createdAt.formatted())
                             .font(.caption)
-                            .foregroundStyle(isCopied ? Color.green.opacity(0.9) : Color.secondary)
+                            .foregroundStyle(isCopied ? BuddyTheme.BuddyColor.success.opacity(0.9) : Color.secondary)
                     }
                     Spacer(minLength: 0)
                 }

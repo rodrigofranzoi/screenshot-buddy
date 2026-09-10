@@ -70,6 +70,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
+        NotificationCenter.default.addObserver(
+            forName: .buddyDismissMenuBarPopover,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.popover?.performClose(nil)
+            }
+        }
+
         if BuddyMarketingCapture.isEnabled {
             NSApp.setActivationPolicy(.regular)
             ScreenshotMarketingCaptureRunner.startIfNeeded(store: store) { [weak self] in

@@ -6,7 +6,7 @@ docs/screenshots/{locale}/banners/ # framed 1280×800 marketing images
 docs/screenshots/mock-content.md
 ```
 
-Locales: `en`, `nl`, `pt`, `es`, `fr`, `it`, `ar`, `zh`, `ru`, `ja`.
+Locales: `en`, `de`, `nl`, `pt`, `es`, `fr`, `it`, `ar`, `zh`, `ru`, `ja`.
 
 ## Capture real UI
 

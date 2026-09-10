@@ -27,7 +27,7 @@ Initial release.
 Paste into App Store Connect → App Review Information → Notes.
 
 ```
-Capture Buddy is a macOS menu-bar (agent) app. There is no Dock icon by default (LSUIElement).
+Capture Buddy is a macOS menu-bar (agent) app. There is no Dock icon by default (LSUIElement). Opening the main window temporarily shows a Dock icon (menu-bar pin otherwise).
 
 NO LOGIN / DEMO ACCOUNT REQUIRED.
 

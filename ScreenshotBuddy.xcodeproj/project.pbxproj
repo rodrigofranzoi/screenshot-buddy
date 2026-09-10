@@ -231,7 +231,17 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					2233CA3F1CC019CDA811AF5B = {
+						DevelopmentTeam = G42Z863W7H;
+						ProvisioningStyle = Automatic;
+					};
+					37E5CA631C56D2D188228D8F = {
+						DevelopmentTeam = G42Z863W7H;
+						ProvisioningStyle = Automatic;
+					};
 					B4369514219082074BD6CB48 = {
+						DevelopmentTeam = G42Z863W7H;
+						ProvisioningStyle = Automatic;
 						TestTargetID = 2233CA3F1CC019CDA811AF5B;
 					};
 				};
@@ -242,6 +252,7 @@
 			knownRegions = (
 				Base,
 				ar,
+				de,
 				en,
 				es,
 				fr,
@@ -378,8 +389,10 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = G42Z863W7H;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -434,8 +447,10 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = G42Z863W7H;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;

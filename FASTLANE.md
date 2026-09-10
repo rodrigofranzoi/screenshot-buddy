@@ -34,6 +34,12 @@ Xcode must be able to create/download a **Mac App Store** provisioning profile f
 
 ## Lanes
 
+Generate screenshots before uploading:
+
+```bash
+./scripts/generate-store-screenshots.sh
+```
+
 | Lane | What it does |
 |------|----------------|
 | `bundle exec fastlane mac prepare` | Build `fastlane/metadata` + `fastlane/screenshots` from `STORE.md` and banner PNGs |
@@ -68,10 +74,10 @@ bundle exec fastlane mac release submit:true
 | What’s New | `STORE.md` → What’s New (all locales) |
 | Privacy / Terms URLs | `STORE.md` Legal URLs |
 | App Review notes | `STORE.md` App Review Notes fenced block |
-| Screenshots | `docs/screenshots/{en,nl,…}/banners/*.png` (ordered per feature) |
+| Screenshots | `docs/screenshots/{en,de,…}/banners/*.png` (ordered per feature) |
 
 Locale map: `en→en-US`, `de→de-DE`, `nl→nl-NL`, `pt→pt-PT`, `es→es-ES`, `fr→fr-FR`, `it→it`, `ar→ar-SA`, `zh→zh-Hans`, `ru→ru`, `ja→ja`.
 
 ## Other Buddy apps
 
-Paint / Clipboard use the same shared Fastfile. Copy this app’s `Gemfile`, `fastlane/Appfile`, `fastlane/Fastfile`, `fastlane/ExportOptions.plist`, and `FASTLANE.md`, then change the `BUDDY_*` values (see those repos’ `fastlane/Fastfile`).
+Paint / ClipLog Buddy use the same shared Fastfile. See those repos’ `FASTLANE.md` and `fastlane/Fastfile` `BUDDY_*` values.

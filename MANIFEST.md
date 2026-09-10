@@ -16,7 +16,7 @@ See suite contract patterns from [shared-buddy](https://github.com/rodrigofranzo
 
 ## Locales
 
-`en`, `nl`, `pt`, `es`, `fr`, `it`, `ar`, `zh`, `ru`, `ja`
+`en`, `de`, `nl`, `pt`, `es`, `fr`, `it`, `ar`, `zh`, `ru`, `ja`
 
 ## Purpose
 
