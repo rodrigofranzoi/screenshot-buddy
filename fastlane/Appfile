@@ -1,0 +1,8 @@
+# App Store Connect / Developer Portal
+app_identifier(ENV["BUDDY_BUNDLE_ID"] || "com.buddy.screenshot")
+apple_id(ENV["APPLE_ID"] || "rodrigo.scroferneker@gmail.com")
+team_id(ENV["FASTLANE_TEAM_ID"] || ENV["BUDDY_TEAM_ID"] || "G42Z863W7H")
+
+# Prefer App Store Connect API key auth (see FASTLANE.md).
+# For the Mac App Store platform:
+itc_team_id(ENV["ITC_TEAM_ID"]) if ENV["ITC_TEAM_ID"] && !ENV["ITC_TEAM_ID"].empty?

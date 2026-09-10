@@ -35,6 +35,7 @@ Apps **must** use the shared Buddy design system (tokens + atomic components) fr
 
 - [FEATURES.md](FEATURES.md)
 - [STORE.md](STORE.md)
+- [FASTLANE.md](FASTLANE.md)
 - [ACCESSIBILITY.md](ACCESSIBILITY.md)
 - [LOCALIZATION.md](LOCALIZATION.md)
 - [TESTING.md](TESTING.md)

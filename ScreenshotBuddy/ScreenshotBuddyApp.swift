@@ -48,9 +48,7 @@ struct ScreenshotBuddyApp: App {
                     BuddyClearHistorySettingsSection(itemNoun: "screenshots") {
                         store.clearAllHistory()
                     }
-                    Section("Startup") {
-                        BuddyLaunchAtLoginToggle()
-                    }
+                    BuddyStartupSettingsSection()
                 case BuddySettingsItem.privacy.id:
                     SensitivePrivacySettingsSection()
                     BuddyLegalLinksSection(brand: brand)

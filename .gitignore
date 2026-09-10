@@ -4,7 +4,24 @@ build/
 *.xcuserdata
 xcuserdata/
 Vendor/shared-buddy
+vendor/bundle/
+.bundle/
+*.pkg
+*.dSYM.zip
 
 # Firebase client config (API key) — keep local; do not commit
 **/GoogleService-Info.plist
 !**/GoogleService-Info.plist.sample
+
+# Fastlane / App Store Connect secrets & generated deliver trees
+.env
+fastlane/.env
+fastlane/.env.*
+!fastlane/.env.example
+AuthKey_*.p8
+**/AuthKey_*.p8
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/README.md
+fastlane/metadata/
+fastlane/screenshots/

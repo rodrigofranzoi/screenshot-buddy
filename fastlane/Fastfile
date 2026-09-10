@@ -1,0 +1,17 @@
+# Capture Buddy — Fastlane entrypoint
+# Requires: Vendor/shared-buddy linked, ASC API key env vars (see FASTLANE.md)
+
+ENV["BUDDY_APP_KEY"] ||= "screenshot"
+ENV["BUDDY_SCHEME"] ||= "ScreenshotBuddy"
+ENV["BUDDY_XCODEPROJ"] ||= "ScreenshotBuddy.xcodeproj"
+ENV["BUDDY_BUNDLE_ID"] ||= "com.buddy.screenshot"
+ENV["BUDDY_APP_STORE_ID"] ||= "6809226358"
+ENV["BUDDY_PRODUCT_NAME"] ||= "Capture Buddy"
+ENV["BUDDY_TEAM_ID"] ||= "G42Z863W7H"
+ENV["FASTLANE_TEAM_ID"] ||= ENV["BUDDY_TEAM_ID"]
+
+# __dir__ == <app>/fastlane
+shared = File.expand_path("../Vendor/shared-buddy/scripts/store/Fastfile", __dir__)
+shared = File.expand_path("../../shared-buddy/scripts/store/Fastfile", __dir__) unless File.exist?(shared)
+UI.user_error!("Shared Fastfile not found (link Vendor/shared-buddy). Tried Vendor and ../shared-buddy.") unless File.exist?(shared)
+import(shared)
