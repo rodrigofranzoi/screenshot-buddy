@@ -11,7 +11,9 @@
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleName</key>
-	<string>Screenshot Buddy</string>
+	<string>Capture Buddy</string>
+	<key>CFBundleDisplayName</key>
+	<string>Capture Buddy</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

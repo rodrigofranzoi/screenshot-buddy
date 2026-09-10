@@ -1,4 +1,4 @@
-# Testing — Screenshot Buddy
+# Testing — Capture Buddy
 
 ## Unit
 

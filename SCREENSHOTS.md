@@ -1,4 +1,4 @@
-# Screenshots — Screenshot Buddy
+# Screenshots — Capture Buddy
 
 ```
 docs/screenshots/{locale}/raw/      # real app window captures
@@ -26,7 +26,7 @@ Frame existing raws only (does not overwrite with PIL mocks):
 python3 shared-buddy/scripts/marketing/generate_marketing_banners.py --frame-only
 ```
 
-Banner size: **1280×800**. Brand frame uses the Screenshot Buddy orange / amber / peach icon gradient.
+Banner size: **1280×800**. Brand frame uses the Capture Buddy orange / amber / peach icon gradient.
 
 ## Required shots
 

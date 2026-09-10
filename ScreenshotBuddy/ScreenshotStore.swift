@@ -17,14 +17,21 @@ final class ScreenshotStore: ObservableObject {
     @Published var selectedId: UUID?
     @Published var draftNotes: String = ""
     @Published var query: String = ""
+    /// True when the default screenshot save folder (Desktop / custom) isn’t readable under sandbox.
+    @Published var needsScreenshotFolderAccess = false
+    /// Display name of the folder currently granted via security-scoped bookmark, if any.
+    @Published var grantedScreenshotFolderName: String?
 
     let unlockSession = SensitiveUnlockSession.shared
 
     private let itemsKey = "screenshot.items"
+    private let itemsFileURL: URL
     private let ciContext = CIContext(options: nil)
     private var undoStacks: [UUID: [EditSnapshot]] = [:]
     private var redoStacks: [UUID: [EditSnapshot]] = [:]
     private let maxUndoDepth = 50
+    private var securityScopedFolders: [URL] = []
+    private var isMonitoring = false
 
     private struct EditSnapshot: Equatable {
         var imageData: Data
@@ -68,19 +75,49 @@ final class ScreenshotStore: ObservableObject {
         }
     }
 
-    init() {
+    init(itemsFileURL: URL? = nil) {
+        if let itemsFileURL {
+            self.itemsFileURL = itemsFileURL
+        } else if Self.isRunningUnitTests {
+            let dir = FileManager.default.temporaryDirectory
+                .appendingPathComponent("ScreenshotBuddyTests-\(UUID().uuidString)", isDirectory: true)
+            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+            self.itemsFileURL = dir.appendingPathComponent("gallery-items.json")
+        } else {
+            self.itemsFileURL = Self.defaultGalleryFileURL()
+        }
         load()
     }
 
+    private static var isRunningUnitTests: Bool {
+        ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+    }
+
+    /// Application Support file — UserDefaults cannot hold multi‑MB image galleries.
+    private static func defaultGalleryFileURL() -> URL {
+        let fm = FileManager.default
+        let root = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? fm.temporaryDirectory
+        let dir = root.appendingPathComponent("Capture Buddy", isDirectory: true)
+        try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir.appendingPathComponent("gallery-items.json")
+    }
+
     func startMonitoring() {
+        isMonitoring = true
         monitoringStartedAt = Date()
         startMetadataQuery()
         startFolderWatch()
         startPasteboardWatch()
         startScreenshotHotkeyMonitor()
+        // Global hotkeys need Accessibility; still offer Desktop access shortly after launch.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            self?.promptForScreenshotFolderAccessIfNeeded()
+        }
     }
 
     func stopMonitoring() {
+        isMonitoring = false
         stopMetadataQueryOnly()
         stopFolderWatch()
         stopBurstScan()
@@ -91,6 +128,52 @@ final class ScreenshotStore: ObservableObject {
         pasteboardTimer = nil
         for (_, task) in importTasks { task.cancel() }
         importTasks = [:]
+    }
+
+    /// Opens a folder picker so the user can grant lasting access to where macOS saves screenshots.
+    @discardableResult
+    func chooseScreenshotFolder() -> Bool {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.directoryURL = Self.preferredScreenshotSaveDirectory()
+        panel.message = String(
+            localized: "Choose the folder where macOS saves screenshots (usually Desktop)."
+        )
+        panel.prompt = String(localized: "Allow Access")
+        guard panel.runModal() == .OK, let url = panel.url else { return false }
+        return grantScreenshotFolderAccess(to: url)
+    }
+
+    @discardableResult
+    func grantScreenshotFolderAccess(to url: URL) -> Bool {
+        do {
+            let data = try url.bookmarkData(
+                options: [.withSecurityScope],
+                includingResourceValuesForKeys: nil,
+                relativeTo: nil
+            )
+            UserDefaults.standard.set(data, forKey: BuddySettingsKey.screenshotFolderBookmark)
+            UserDefaults.standard.set(true, forKey: BuddySettingsKey.screenshotFolderAccessPrompted)
+            if isMonitoring {
+                startFolderWatch()
+            } else {
+                refreshScreenshotFolderAccessStatus()
+            }
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    func clearScreenshotFolderAccess() {
+        UserDefaults.standard.removeObject(forKey: BuddySettingsKey.screenshotFolderBookmark)
+        if isMonitoring {
+            startFolderWatch()
+        } else {
+            refreshScreenshotFolderAccessStatus()
+        }
     }
 
     private func startMetadataQuery() {
@@ -158,9 +241,11 @@ final class ScreenshotStore: ObservableObject {
 
     private func startFolderWatch() {
         stopFolderWatch()
-        watchedDirectories = Self.screenshotDirectories()
+        let bookmarked = activateBookmarkedScreenshotFolder()
+        watchedDirectories = Self.screenshotDirectories(bookmarkedFolder: bookmarked)
         knownFilesInWatchedDirs = Self.listImagePaths(in: watchedDirectories)
         knownScreenshotPaths.formUnion(knownFilesInWatchedDirs)
+        refreshScreenshotFolderAccessStatus()
 
         for dir in watchedDirectories {
             let path = dir.path
@@ -201,6 +286,7 @@ final class ScreenshotStore: ObservableObject {
         folderWatchSources = []
         watchedDirectories = []
         knownFilesInWatchedDirs = []
+        releaseSecurityScopedFolders()
     }
 
     /// Starts the moment ⌘⇧3/4 is pressed so we catch the file as soon as it lands (not after Spotlight/folder UI updates).
@@ -209,8 +295,12 @@ final class ScreenshotStore: ObservableObject {
         hotkeyMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard Self.isDiskScreenshotHotkey(event) else { return }
             Task { @MainActor in
+                guard let self else { return }
+                if self.needsScreenshotFolderAccess {
+                    self.promptForScreenshotFolderAccessIfNeeded()
+                }
                 // Region capture (4) can take a while; full-screen (3) is quick — cover both.
-                self?.startBurstScan(duration: 25)
+                self.startBurstScan(duration: 25)
             }
         }
     }
@@ -271,22 +361,147 @@ final class ScreenshotStore: ObservableObject {
         scheduleImport(path: path, title: URL(fileURLWithPath: path).deletingPathExtension().lastPathComponent)
     }
 
-    private static func screenshotDirectories() -> [URL] {
-        var dirs: [URL] = []
+    private func promptForScreenshotFolderAccessIfNeeded() {
+        guard needsScreenshotFolderAccess else { return }
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: BuddySettingsKey.screenshotFolderAccessPrompted) else { return }
+        // Mark after presenting so a cancel still stops auto-loops; the gallery banner stays visible.
+        defaults.set(true, forKey: BuddySettingsKey.screenshotFolderAccessPrompted)
+        _ = chooseScreenshotFolder()
+    }
+
+    private func refreshScreenshotFolderAccessStatus() {
+        let preferred = Self.preferredScreenshotSaveDirectory()
+        let preferredPath = preferred.standardizedFileURL.path
+
+        var bookmarkedPath: String?
+        if let data = UserDefaults.standard.data(forKey: BuddySettingsKey.screenshotFolderBookmark) {
+            var isStale = false
+            if let url = try? URL(
+                resolvingBookmarkData: data,
+                options: [.withSecurityScope],
+                relativeTo: nil,
+                bookmarkDataIsStale: &isStale
+            ) {
+                bookmarkedPath = url.standardizedFileURL.path
+                grantedScreenshotFolderName = url.lastPathComponent
+            } else {
+                grantedScreenshotFolderName = nil
+            }
+        } else {
+            grantedScreenshotFolderName = nil
+        }
+
+        let canReadPreferred =
+            (Self.canListDirectory(preferred) && !Self.isInsideAppSandboxContainer(preferred))
+            || watchedDirectories.contains {
+                $0.standardizedFileURL.path == preferredPath
+                    && !Self.isInsideAppSandboxContainer($0)
+            }
+            || bookmarkedPath == preferredPath
+        needsScreenshotFolderAccess = !canReadPreferred
+    }
+
+    @discardableResult
+    private func activateBookmarkedScreenshotFolder() -> URL? {
+        releaseSecurityScopedFolders()
+        guard let url = resolveBookmarkedScreenshotFolder(startAccessing: true) else { return nil }
+        securityScopedFolders.append(url)
+        return url
+    }
+
+    private func resolveBookmarkedScreenshotFolder(startAccessing: Bool) -> URL? {
+        guard let data = UserDefaults.standard.data(forKey: BuddySettingsKey.screenshotFolderBookmark) else {
+            return nil
+        }
+        var isStale = false
+        do {
+            let url = try URL(
+                resolvingBookmarkData: data,
+                options: [.withSecurityScope],
+                relativeTo: nil,
+                bookmarkDataIsStale: &isStale
+            )
+            if startAccessing {
+                guard url.startAccessingSecurityScopedResource() else { return nil }
+            }
+            if isStale {
+                if let refreshed = try? url.bookmarkData(
+                    options: [.withSecurityScope],
+                    includingResourceValuesForKeys: nil,
+                    relativeTo: nil
+                ) {
+                    UserDefaults.standard.set(refreshed, forKey: BuddySettingsKey.screenshotFolderBookmark)
+                }
+            }
+            return url
+        } catch {
+            return nil
+        }
+    }
+
+    private func releaseSecurityScopedFolders() {
+        for url in securityScopedFolders {
+            url.stopAccessingSecurityScopedResource()
+        }
+        securityScopedFolders = []
+    }
+
+    private static func preferredScreenshotSaveDirectory() -> URL {
         if let custom = readScreencaptureLocation() {
+            return custom.standardizedFileURL
+        }
+        // Must use the real user home — under App Sandbox, `urls(for: .desktopDirectory)` and
+        // `NSHomeDirectory()` point at the container, not ~/Desktop where macOS saves shots.
+        return realUserHomeDirectory.appendingPathComponent("Desktop", isDirectory: true)
+    }
+
+    /// POSIX home directory (outside the app sandbox container).
+    private static var realUserHomeDirectory: URL {
+        if let pw = getpwuid(getuid()), let dir = pw.pointee.pw_dir {
+            return URL(fileURLWithPath: String(cString: dir), isDirectory: true)
+        }
+        return URL(fileURLWithPath: NSHomeDirectory(), isDirectory: true)
+    }
+
+    private static func isInsideAppSandboxContainer(_ url: URL) -> Bool {
+        url.path.contains("/Library/Containers/")
+    }
+
+    private static func screenshotDirectories(bookmarkedFolder: URL?) -> [URL] {
+        var dirs: [URL] = []
+        if let bookmarkedFolder {
+            dirs.append(bookmarkedFolder)
+        }
+        if let custom = readScreencaptureLocation(),
+           canListDirectory(custom),
+           !isInsideAppSandboxContainer(custom) {
             dirs.append(custom)
         }
-        if let desktop = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first {
-            dirs.append(desktop)
+        let preferred = preferredScreenshotSaveDirectory()
+        if canListDirectory(preferred), !isInsideAppSandboxContainer(preferred) {
+            dirs.append(preferred)
         }
+        // Sandbox already allows Pictures — always watch (and create) Screenshots there.
         if let pictures = FileManager.default.urls(for: .picturesDirectory, in: .userDomainMask).first {
             let screenshots = pictures.appendingPathComponent("Screenshots", isDirectory: true)
+            if !FileManager.default.fileExists(atPath: screenshots.path) {
+                try? FileManager.default.createDirectory(at: screenshots, withIntermediateDirectories: true)
+            }
             if FileManager.default.fileExists(atPath: screenshots.path) {
                 dirs.append(screenshots)
             }
         }
         var seen = Set<String>()
         return dirs.filter { seen.insert($0.standardizedFileURL.path).inserted }
+    }
+
+    private static func canListDirectory(_ url: URL) -> Bool {
+        (try? FileManager.default.contentsOfDirectory(
+            at: url,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        )) != nil
     }
 
     private static func readScreencaptureLocation() -> URL? {
@@ -848,22 +1063,86 @@ final class ScreenshotStore: ObservableObject {
             path.lineWidth = CGFloat(max(annotation.lineWidth, 1))
             path.stroke()
         case .text:
-            let origin = CGPoint(
-                x: annotation.x * size.width,
-                y: (1.0 - annotation.y) * size.height
-            )
             let text = annotation.text.isEmpty ? "Text" : annotation.text
+            let paragraph = NSMutableParagraphStyle()
+            paragraph.lineBreakMode = .byWordWrapping
+            paragraph.alignment = Self.nsTextAlignment(annotation.textAlignment)
+            let fontSize = CGFloat(max(annotation.fontSize, 10))
             let attrs: [NSAttributedString.Key: Any] = [
-                .font: NSFont.systemFont(ofSize: CGFloat(max(annotation.fontSize, 10)), weight: .semibold),
-                .foregroundColor: color
+                .font: Self.annotationFont(name: annotation.fontName, size: fontSize),
+                .foregroundColor: color,
+                .paragraphStyle: paragraph
             ]
-            let drawn = (text as NSString).size(withAttributes: attrs)
-            // NSString draws with y as baseline from bottom-left of image coords.
-            (text as NSString).draw(
-                at: NSPoint(x: origin.x, y: origin.y - drawn.height),
-                withAttributes: attrs
-            )
+            let box = Self.textDrawRect(for: annotation, in: size, attributes: attrs, text: text)
+            (text as NSString).draw(in: box, withAttributes: attrs)
         }
+    }
+
+    static func annotationFont(name: String, size: CGFloat) -> NSFont {
+        let resolved = size > 0 ? size : 18
+        if name.isEmpty || name == "System" {
+            return NSFont.systemFont(ofSize: resolved, weight: .semibold)
+        }
+        if let font = NSFont(name: name, size: resolved) {
+            return font
+        }
+        let compact = name.replacingOccurrences(of: " ", with: "")
+        if let font = NSFont(name: compact, size: resolved) {
+            return font
+        }
+        if let font = NSFontManager.shared.font(
+            withFamily: name,
+            traits: .boldFontMask,
+            weight: 7,
+            size: resolved
+        ) {
+            return font
+        }
+        if let font = NSFontManager.shared.font(
+            withFamily: name,
+            traits: [],
+            weight: 5,
+            size: resolved
+        ) {
+            return font
+        }
+        return NSFont.systemFont(ofSize: resolved, weight: .semibold)
+    }
+
+    static func nsTextAlignment(_ raw: String) -> NSTextAlignment {
+        switch raw {
+        case "center": return .center
+        case "right": return .right
+        default: return .left
+        }
+    }
+
+    /// Image-space rect for a text annotation. Legacy point stamps (x2≈x, y2≈y) fall back to measured text size.
+    private static func textDrawRect(
+        for annotation: ImageAnnotation,
+        in size: CGSize,
+        attributes: [NSAttributedString.Key: Any],
+        text: String
+    ) -> NSRect {
+        let nx = min(annotation.x, annotation.x2)
+        let ny = min(annotation.y, annotation.y2)
+        var nw = abs(annotation.x2 - annotation.x)
+        var nh = abs(annotation.y2 - annotation.y)
+        if nw < 0.02 || nh < 0.02 {
+            let measured = (text as NSString).boundingRect(
+                with: NSSize(width: max(size.width * 0.5, 1), height: .greatestFiniteMagnitude),
+                options: [.usesLineFragmentOrigin, .usesFontLeading],
+                attributes: attributes
+            ).integral.size
+            nw = max(Double(measured.width / max(size.width, 1)), 0.08)
+            nh = max(Double(measured.height / max(size.height, 1)), 0.04)
+        }
+        return NSRect(
+            x: nx * size.width,
+            y: (1.0 - ny - nh) * size.height,
+            width: nw * size.width,
+            height: nh * size.height
+        )
     }
 
     private func drawArrow(from start: CGPoint, to end: CGPoint, color: NSColor, lineWidth: CGFloat) {
@@ -1046,9 +1325,57 @@ final class ScreenshotStore: ObservableObject {
     }
 
     private func save() {
-        if let data = try? JSONEncoder().encode(items) {
-            UserDefaults.standard.set(data, forKey: itemsKey)
+        guard let data = try? JSONEncoder().encode(items) else { return }
+        do {
+            let directory = itemsFileURL.deletingLastPathComponent()
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            try data.write(to: itemsFileURL, options: [.atomic])
+        } catch {
+            #if DEBUG
+            print("ScreenshotStore: failed to save gallery — \(error.localizedDescription)")
+            #endif
         }
+    }
+
+    private func load() {
+        if let data = try? Data(contentsOf: itemsFileURL),
+           let decoded = try? JSONDecoder().decode([ScreenshotItem].self, from: data) {
+            items = decoded
+        } else {
+            _ = migrateItemsFromUserDefaultsIfNeeded()
+        }
+        // Drop the legacy prefs blob even when the file already exists — CFPreferences
+        // rejects *any* write while screenshot.items (~100MB+) remains in the domain.
+        purgeLegacyUserDefaultsItemsIfNeeded()
+
+        let before = items.count
+        prune()
+        if items.count != before {
+            save()
+        }
+        backfillMissingOCR()
+    }
+
+    /// Moves oversized `screenshot.items` out of CFPreferences (4 MB limit) once.
+    @discardableResult
+    private func migrateItemsFromUserDefaultsIfNeeded() -> Bool {
+        guard !Self.isRunningUnitTests else { return false }
+        let defaults = UserDefaults.standard
+        guard let data = defaults.data(forKey: itemsKey) else { return false }
+        guard let decoded = try? JSONDecoder().decode([ScreenshotItem].self, from: data) else {
+            return false
+        }
+        items = decoded
+        save()
+        return true
+    }
+
+    private func purgeLegacyUserDefaultsItemsIfNeeded() {
+        guard !Self.isRunningUnitTests else { return }
+        let defaults = UserDefaults.standard
+        guard defaults.object(forKey: itemsKey) != nil else { return }
+        defaults.removeObject(forKey: itemsKey)
+        defaults.synchronize()
     }
 
     /// Replaces gallery contents for App Store marketing captures.
@@ -1181,19 +1508,6 @@ final class ScreenshotStore: ObservableObject {
         static let invite = UUID(uuidString: "AAAAAAAA-0001-4000-8000-000000000004")!
         static let palette = UUID(uuidString: "AAAAAAAA-0001-4000-8000-000000000005")!
         static let notes = UUID(uuidString: "AAAAAAAA-0001-4000-8000-000000000006")!
-    }
-
-    private func load() {
-        if let data = UserDefaults.standard.data(forKey: itemsKey),
-           let decoded = try? JSONDecoder().decode([ScreenshotItem].self, from: data) {
-            items = decoded
-        }
-        let before = items.count
-        prune()
-        if items.count != before {
-            save()
-        }
-        backfillMissingOCR()
     }
 
     /// Re-runs OCR for search indexing when image bytes change.

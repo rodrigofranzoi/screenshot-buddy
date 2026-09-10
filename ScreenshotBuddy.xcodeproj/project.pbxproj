@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		04D2B4500B95FCACF05FB363 /* BuddyCore in Frameworks */ = {isa = PBXBuildFile; productRef = 15CE0F06B3BF3494CF1F23D0 /* BuddyCore */; };
+		0BE727149BF1EF1E80930F05 /* FloatingHistoryPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E49ED0FFA948DE437CEE0A9E /* FloatingHistoryPanelController.swift */; };
 		327EBA887E0B3C17567D34DF /* ScreenshotBuddyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BD81434DE896347C8D2109F /* ScreenshotBuddyUITests.swift */; };
 		49DBC25B362B3FA4BBA1290C /* BuddyLocalization in Frameworks */ = {isa = PBXBuildFile; productRef = BD58E11E8DB9DD31FF239DD4 /* BuddyLocalization */; };
 		59DFA97E8A70DA383B484B14 /* ScreenshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA4B53B7A47329ECF33D6EE /* ScreenshotStore.swift */; };
@@ -19,6 +20,7 @@
 		B2D2B3DF5D5F3ED22581335B /* BuddyFirebase in Frameworks */ = {isa = PBXBuildFile; productRef = FD44EC0B7A86910FBA762EC4 /* BuddyFirebase */; };
 		BE8B6D393B6B72534B4A4EA5 /* BuddyUI in Frameworks */ = {isa = PBXBuildFile; productRef = 50B5C56270731BFDC618CC34 /* BuddyUI */; };
 		D713758F8443B9A2503150EC /* GalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7DFA300853544D7DE3C58F3 /* GalleryView.swift */; };
+		E36EC838EEE7086F2C796CFB /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F679C3760A15D959CC60EC0F /* GoogleService-Info.plist */; };
 		EBE396624AABC13DDEE67D77 /* ScreenshotMarketingCaptureRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B518E2430382D168BEF0CB3 /* ScreenshotMarketingCaptureRunner.swift */; };
 		ED1E32A5F61039EB4C4AE0D4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA4836C993C806119453C51 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
@@ -55,7 +57,10 @@
 		C35A0E90E0B60DB273311171 /* ScreenshotBuddyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotBuddyApp.swift; sourceTree = "<group>"; };
 		D3C08224309EE847A31FB2DF /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		DABEFCF139F91C351FF23967 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E49ED0FFA948DE437CEE0A9E /* FloatingHistoryPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingHistoryPanelController.swift; sourceTree = "<group>"; };
+		F679C3760A15D959CC60EC0F /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F7DFA300853544D7DE3C58F3 /* GalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryView.swift; sourceTree = "<group>"; };
+		FFDFF2E50AAA686F390DAEB0 /* ScreenshotBuddy-Marketing.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ScreenshotBuddy-Marketing.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,8 +91,10 @@
 			children = (
 				3EA4836C993C806119453C51 /* AppDelegate.swift */,
 				DABEFCF139F91C351FF23967 /* Assets.xcassets */,
+				E49ED0FFA948DE437CEE0A9E /* FloatingHistoryPanelController.swift */,
 				F7DFA300853544D7DE3C58F3 /* GalleryView.swift */,
 				0835E9FB85B8F737DA6B2EA1 /* Info.plist */,
+				FFDFF2E50AAA686F390DAEB0 /* ScreenshotBuddy-Marketing.entitlements */,
 				3EC34CD20562F09D9419847D /* ScreenshotBuddy.entitlements */,
 				C35A0E90E0B60DB273311171 /* ScreenshotBuddyApp.swift */,
 				0B518E2430382D168BEF0CB3 /* ScreenshotMarketingCaptureRunner.swift */,
@@ -118,6 +125,7 @@
 		BC3296DF593D68814DA724D2 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				F679C3760A15D959CC60EC0F /* GoogleService-Info.plist */,
 				D3C08224309EE847A31FB2DF /* Localizable.xcstrings */,
 			);
 			path = Resources;
@@ -267,6 +275,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9E4B3D3C828755A6E92F596A /* Assets.xcassets in Resources */,
+				E36EC838EEE7086F2C796CFB /* GoogleService-Info.plist in Resources */,
 				6EEC655F36FF6656B3846FA4 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -287,6 +296,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ED1E32A5F61039EB4C4AE0D4 /* AppDelegate.swift in Sources */,
+				0BE727149BF1EF1E80930F05 /* FloatingHistoryPanelController.swift in Sources */,
 				D713758F8443B9A2503150EC /* GalleryView.swift in Sources */,
 				AF56A6414850DE0D8DDEB6D8 /* ScreenshotBuddyApp.swift in Sources */,
 				EBE396624AABC13DDEE67D77 /* ScreenshotMarketingCaptureRunner.swift in Sources */,
@@ -493,21 +503,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = ScreenshotBuddy/ScreenshotBuddy.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = G42Z863W7H;
 				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ScreenshotBuddy/Info.plist;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-ObjC",
-				);
+				OTHER_LDFLAGS = "$(inherited) -ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.buddy.screenshot;
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PRODUCT_NAME = "Capture Buddy";
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -517,21 +520,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = ScreenshotBuddy/ScreenshotBuddy.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = G42Z863W7H;
 				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ScreenshotBuddy/Info.plist;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-ObjC",
-				);
+				OTHER_LDFLAGS = "$(inherited) -ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.buddy.screenshot;
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PRODUCT_NAME = "Capture Buddy";
 				SDKROOT = macosx;
 			};
 			name = Debug;

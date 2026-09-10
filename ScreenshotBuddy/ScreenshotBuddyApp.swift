@@ -21,7 +21,7 @@ struct ScreenshotBuddyApp: App {
     ]
 
     var body: some Scene {
-        WindowGroup("Screenshot Buddy") {
+        WindowGroup("Capture Buddy") {
             GalleryView()
                 .environmentObject(store)
                 .frame(minWidth: 800, minHeight: 520)
@@ -37,6 +37,12 @@ struct ScreenshotBuddyApp: App {
                     ScreenshotHistorySettingsSection {
                         store.applyHistoryLimits()
                     }
+                    ScreenshotFolderAccessSettingsSection(
+                        folderName: store.grantedScreenshotFolderName,
+                        needsAccess: store.needsScreenshotFolderAccess,
+                        onChooseFolder: { store.chooseScreenshotFolder() },
+                        onClearAccess: { store.clearScreenshotFolderAccess() }
+                    )
                     BuddyPauseSettingsSection()
                     AutoBlurSettingsSection()
                     BuddyClearHistorySettingsSection(itemNoun: "screenshots") {

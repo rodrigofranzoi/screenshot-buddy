@@ -523,6 +523,9 @@
         }
       }
     },
+    "Allow Desktop (or your screenshot folder) so ⌘⇧3 / ⌘⇧4 shots appear here." : {
+
+    },
     "Annotate" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1496,6 +1499,7 @@
       }
     },
     "Click the image to place text, or click existing text to edit." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2660,6 +2664,12 @@
         }
       }
     },
+    "Drag on the image to draw a text box, or click existing text to edit it." : {
+
+    },
+    "Drag the top bar to move, corner to resize. Press Done when finished." : {
+
+    },
     "Duplicate" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3178,6 +3188,9 @@
           }
         }
       }
+    },
+    "History" : {
+
     },
     "Ink color" : {
       "extractionState" : "stale",
@@ -5698,6 +5711,7 @@
       }
     },
     "Type in the box. Drag the handle to move. Click outside to confirm." : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

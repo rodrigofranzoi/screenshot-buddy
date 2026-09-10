@@ -18,8 +18,9 @@ targets:
       - path: ScreenshotBuddy
         excludes:
           - Resources/GoogleService-Info.plist
-    resources:
       - path: ScreenshotBuddy/Resources/GoogleService-Info.plist
+        buildPhase: resources
+    resources:
       - path: ScreenshotBuddy/Resources/Localizable.xcstrings
     dependencies:
       - package: shared-buddy
@@ -31,6 +32,7 @@ targets:
       - package: shared-buddy
         product: BuddyLocalization
     settings:
+      PRODUCT_NAME: Capture Buddy
       PRODUCT_BUNDLE_IDENTIFIER: com.buddy.screenshot
       INFOPLIST_FILE: ScreenshotBuddy/Info.plist
       GENERATE_INFOPLIST_FILE: false

@@ -7,14 +7,15 @@ import BuddyUI
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private var popover: NSPopover?
+    private let floatingPanel = FloatingScreenshotPanelController()
     var store: ScreenshotStore?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        BuddyLaunchAtLogin.enableByDefaultOnFirstInstall()
         BuddyAppearanceSettings.applyAppKitAppearance()
 
         let store = ScreenshotStore.shared
         self.store = store
+        floatingPanel.attach(store: store)
         let pause = BuddyPauseController.shared
 
         pause.onPauseChanged = { [weak self] isPaused in
@@ -59,13 +60,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
+        NotificationCenter.default.addObserver(
+            forName: .screenshotToggleFloatingPanel,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.floatingPanel.toggle()
+            }
+        }
+
         if BuddyMarketingCapture.isEnabled {
             NSApp.setActivationPolicy(.regular)
             ScreenshotMarketingCaptureRunner.startIfNeeded(store: store) { [weak self] in
                 self?.showPopoverForCapture()
             }
         } else {
-            BuddyMainWindow.hideOnLaunchIfNeeded()
+            BuddyMainWindow.presentFirstLaunchExperienceIfNeeded(
+                appDisplayName: BuddyBrand.screenshotBuddy.displayName
+            )
         }
     }
 
@@ -96,7 +109,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func updateStatusIcon() {
         let paused = BuddyPauseController.shared.isPaused
         let name = paused ? "camera.metering.unknown" : "camera.viewfinder"
-        let description = paused ? "Screenshot Buddy (paused)" : "Screenshot Buddy"
+        let description = paused ? "Capture Buddy (paused)" : "Capture Buddy"
         statusItem?.button?.image = NSImage(systemSymbolName: name, accessibilityDescription: description)
         statusItem?.button?.appearsDisabled = paused
     }

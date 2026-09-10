@@ -1,4 +1,4 @@
-# Screenshot Buddy
+# Capture Buddy
 
 macOS screenshot gallery with quick edit, redact, and export.
 

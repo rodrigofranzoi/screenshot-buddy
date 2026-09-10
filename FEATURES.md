@@ -1,4 +1,4 @@
-# Screenshot Buddy Features
+# Capture Buddy Features
 
 Status: `planned` | `wip` | `done`
 
@@ -27,4 +27,4 @@ Status: `planned` | `wip` | `done`
 | Localization (10 locales) | done | |
 | Firebase | done | |
 
-| UserDefaults persistence | done | Plain JSON; see ENCRYPTION.md |
+| Application Support gallery persistence | done | Migrated off UserDefaults (4 MB CFPrefs limit) |

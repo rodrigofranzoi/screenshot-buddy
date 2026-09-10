@@ -28,7 +28,7 @@ enum ScreenshotMarketingCaptureRunner {
                 try await captureMainScenes(store: store, window: window, out: out)
                 try await captureMenubar(showPopover: showPopover, out: out)
 
-                print("[BuddyMarketing] Screenshot Buddy captures written to \(out.path)")
+                print("[BuddyMarketing] Capture Buddy captures written to \(out.path)")
                 NSApp.terminate(nil)
             } catch {
                 fputs("[BuddyMarketing] ERROR: \(error)\n", stderr)
@@ -46,7 +46,7 @@ enum ScreenshotMarketingCaptureRunner {
             .frame(minWidth: 800, minHeight: 520)
         let hosting = NSHostingController(rootView: root)
         let window = NSWindow(contentViewController: hosting)
-        window.title = "Screenshot Buddy"
+        window.title = "Capture Buddy"
         window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
         window.setContentSize(NSSize(width: 1080, height: 700))
         window.center()

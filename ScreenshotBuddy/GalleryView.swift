@@ -39,53 +39,88 @@ struct GalleryView: View {
 
     var body: some View {
         NavigationSplitView {
-            BuddyListChrome(query: $store.query) {
-                List(selection: $store.selectedId) {
-                    ForEach(store.filtered) { item in
-                        GalleryRow(item: item)
-                            .tag(item.id)
-                            .listRowSeparator(.visible)
-                            .listRowSeparatorTint(BuddyTheme.BuddyColor.border.opacity(0.4))
-                            .accessibilityIdentifier("gallery-row")
-                            .contextMenu {
-                                Button {
-                                    store.duplicate(item)
-                                } label: {
-                                    Label("Duplicate", systemImage: "plus.square.on.square")
-                                }
-                                Button {
-                                    store.copyToClipboard(item)
-                                } label: {
-                                    Label("Copy to Clipboard", systemImage: "doc.on.doc")
-                                }
-                                Button(role: .destructive) {
-                                    pendingDeleteId = item.id
-                                } label: {
-                                    Label("Delete…", systemImage: "trash")
-                                }
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                Button(role: .destructive) {
-                                    pendingDeleteId = item.id
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-                            }
+            VStack(spacing: 0) {
+                if store.needsScreenshotFolderAccess {
+                    HStack(alignment: .center, spacing: BuddyTheme.Spacing.sm) {
+                        Image(systemName: "folder.badge.questionmark")
+                            .foregroundStyle(.orange)
+                        Text("Allow Desktop (or your screenshot folder) so ⌘⇧3 / ⌘⇧4 shots appear here.")
+                            .font(BuddyTheme.Typography.caption)
+                            .foregroundStyle(.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Button("Allow…") {
+                            store.chooseScreenshotFolder()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.small)
+                        .accessibilityIdentifier("gallery-allow-screenshot-folder")
                     }
-                    .onDelete { offsets in
-                        if let idx = offsets.first, store.filtered.indices.contains(idx) {
-                            pendingDeleteId = store.filtered[idx].id
+                    .padding(.horizontal, BuddyTheme.Spacing.md)
+                    .padding(.vertical, BuddyTheme.Spacing.sm)
+                    .background(Color.orange.opacity(0.12))
+                }
+
+                ScrollViewReader { proxy in
+                    List(selection: $store.selectedId) {
+                        ForEach(store.filtered) { item in
+                            GalleryRow(item: item)
+                                .tag(item.id)
+                                .id(item.id)
+                                .listRowSeparator(.visible)
+                                .listRowSeparatorTint(BuddyTheme.BuddyColor.border.opacity(0.4))
+                                .accessibilityIdentifier("gallery-row")
+                                .contextMenu {
+                                    Button {
+                                        store.duplicate(item)
+                                    } label: {
+                                        Label("Duplicate", systemImage: "plus.square.on.square")
+                                    }
+                                    Button {
+                                        store.copyToClipboard(item)
+                                    } label: {
+                                        Label("Copy to Clipboard", systemImage: "doc.on.doc")
+                                    }
+                                    Button(role: .destructive) {
+                                        pendingDeleteId = item.id
+                                    } label: {
+                                        Label("Delete…", systemImage: "trash")
+                                    }
+                                }
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button(role: .destructive) {
+                                        pendingDeleteId = item.id
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                }
+                        }
+                        .onDelete { offsets in
+                            if let idx = offsets.first, store.filtered.indices.contains(idx) {
+                                pendingDeleteId = store.filtered[idx].id
+                            }
                         }
                     }
-                }
-                .listStyle(.inset)
-                .accessibilityIdentifier("gallery-list")
-                .onDeleteCommand {
-                    pendingDeleteId = store.selectedId
+                    .listStyle(.inset)
+                    .accessibilityIdentifier("gallery-list")
+                    .onDeleteCommand {
+                        pendingDeleteId = store.selectedId
+                    }
+                    .onChange(of: store.selectedId) { id in
+                        focusGalleryList(on: id, proxy: proxy)
+                    }
+                    .onChange(of: store.items.first?.id) { _ in
+                        focusGalleryList(on: store.selectedId, proxy: proxy)
+                    }
                 }
             }
+            .searchable(text: $store.query, placement: .sidebar, prompt: "Search")
             .navigationTitle("Gallery")
             .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 420)
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    BuddySettingsGearButton(accessibilityIdentifier: "open-settings")
+                }
+            }
         } detail: {
             if let item = store.selected {
                 EditorPane(item: item, drawMode: $drawMode, dragStart: $dragStart, dragCurrent: $dragCurrent)
@@ -94,17 +129,6 @@ struct GalleryView: View {
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        }
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                BuddyClearHistoryButton(itemNoun: "screenshots", style: .toolbar) {
-                    store.clearAllHistory()
-                }
-                .disabled(store.items.isEmpty)
-            }
-            ToolbarItem(placement: .primaryAction) {
-                BuddySettingsGearButton(accessibilityIdentifier: "open-settings")
             }
         }
         .alert("Delete Screenshot?", isPresented: Binding(
@@ -132,6 +156,15 @@ struct GalleryView: View {
                 drawMode = .none
             default:
                 break
+            }
+        }
+    }
+
+    private func focusGalleryList(on id: UUID?, proxy: ScrollViewProxy) {
+        guard let id else { return }
+        DispatchQueue.main.async {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                proxy.scrollTo(id, anchor: .center)
             }
         }
     }
@@ -217,6 +250,10 @@ struct EditorPane: View {
     @State private var selectedText = ""
     @State private var annotationLineWidth: Double = 3
     @State private var annotationFontSize: Double = 18
+    @State private var annotationFontName: String = "System"
+    @State private var annotationTextAlignment: String = "left"
+    @State private var textPlacementStart: CGPoint?
+    @State private var textPlacementCurrent: CGPoint?
     @State private var ellipseFillEnabled = false
     @State private var qrPayloads: [QRCodePayload] = []
     @State private var qrScanGeneration = 0
@@ -229,8 +266,12 @@ struct EditorPane: View {
     @State private var qrScanExpanded = true
     @State private var annotateExpanded = true
     @State private var textDraft: TextAnnotationDraft?
-    @FocusState private var isTextDraftFocused: Bool
-    @State private var textDragOrigin: CGPoint?
+    /// Holds typed text without publishing SwiftUI state on every keystroke.
+    @State private var textEditBuffer = AnnotateTextBuffer()
+    /// Bumped to focus the text view after placing/selecting a box (drives a SwiftUI refresh).
+    @State private var textFocusGeneration = 0
+    /// Baked image with the draft annotation excluded; stable while the draft is open.
+    @State private var textDraftCanvasImage: NSImage?
     @State private var cropInsetLeft: Double = 0
     @State private var cropInsetRight: Double = 0
     @State private var cropInsetTop: Double = 0
@@ -366,7 +407,8 @@ struct EditorPane: View {
             VStack(spacing: 12) {
                 GeometryReader { geo in
                     let excluding = textDraft.map { Set([$0.annotationID]) } ?? []
-                    let rendered = store.renderedImage(for: item, excludingAnnotationIDs: excluding)
+                    let rendered = textDraftCanvasImage
+                        ?? store.renderedImage(for: item, excludingAnnotationIDs: excluding)
                     let _ = blurRadius
                     let _ = blackBoxOpacity
                     let _ = blackBoxColorHex
@@ -376,7 +418,6 @@ struct EditorPane: View {
                     let _ = borderWidth
                     let _ = drawColorHex
                     let _ = drawSize
-                    let _ = textDraft
                     let fitted = fittedImageRect(imageSize: rendered?.size ?? .zero, in: geo.size)
 
                     SensitiveBlurView(isHidden: isHidden) {
@@ -399,16 +440,26 @@ struct EditorPane: View {
                             width: zoomedSize.width,
                             height: zoomedSize.height
                         )
+                        let hostSize = CGSize(
+                            width: max(geo.size.width, canvasContentSize.width),
+                            height: max(geo.size.height, canvasContentSize.height)
+                        )
+                        // Canvas is centered inside the scroll host.
+                        let canvasOriginInHost = CGPoint(
+                            x: (hostSize.width - canvasContentSize.width) / 2,
+                            y: (hostSize.height - canvasContentSize.height) / 2
+                        )
+                        let imageBoundsInHost = imageBounds.offsetBy(
+                            dx: canvasOriginInHost.x,
+                            dy: canvasOriginInHost.y
+                        )
 
                         ScrollView([.horizontal, .vertical], showsIndicators: zoom > 1.01 || isCropping) {
                             ZStack {
                                 // Expand the scroll content so the image stays centered when
                                 // it is smaller than the viewport (fit / light zoom).
                                 Color.clear
-                                    .frame(
-                                        width: max(geo.size.width, canvasContentSize.width),
-                                        height: max(geo.size.height, canvasContentSize.height)
-                                    )
+                                    .frame(width: hostSize.width, height: hostSize.height)
 
                                 if usesLiveText, let image = rendered {
                                     // Same host sizing as the annotation canvas so Select does not
@@ -430,10 +481,6 @@ struct EditorPane: View {
                                 } else {
                                     // Keep image + annotation hit-testing inside the image frame
                                     // so letterbox margins cannot receive arrows/shapes.
-                                    // Local coords use origin at the image top-left; zoom only
-                                    // enlarges this frame (still image-bounded).
-                                    // When cropping, the frame grows by cropPad so edge handles
-                                    // remain visible; imageBounds stays the cropable area only.
                                     ZStack {
                                         if let image = rendered {
                                             Image(nsImage: image)
@@ -477,7 +524,8 @@ struct EditorPane: View {
                                         if drawMode == .text, !isHidden {
                                             textCanvasInteractionLayer(
                                                 fitted: imageBounds,
-                                                imageSize: rendered?.size ?? .zero
+                                                imageSize: rendered?.size ?? .zero,
+                                                showsEditorChrome: false
                                             )
                                         }
                                     }
@@ -488,12 +536,24 @@ struct EditorPane: View {
                                         dragGesture(fittedImageRect: imageBounds),
                                         including: drawMode == .text ? .subviews : .all
                                     )
+
+                                    // Host-sized chrome so the format bar stays tappable in letterbox
+                                    // / outside the image without resizing (zooming) the picture.
+                                    if drawMode == .text, !isHidden, textDraft != nil {
+                                        TextDraftEditorOverlay(
+                                            draft: $textDraft,
+                                            textBuffer: textEditBuffer,
+                                            focusGeneration: textFocusGeneration,
+                                            fitted: imageBoundsInHost,
+                                            hostSize: hostSize,
+                                            imageSize: rendered?.size ?? .zero,
+                                            onDone: { commitTextDraftIfNeeded() }
+                                        )
+                                        .frame(width: hostSize.width, height: hostSize.height)
+                                    }
                                 }
                             }
-                            .frame(
-                                width: max(geo.size.width, canvasContentSize.width),
-                                height: max(geo.size.height, canvasContentSize.height)
-                            )
+                            .frame(width: hostSize.width, height: hostSize.height)
                         }
                         .modifier(ScrollDisabledWhenFitModifier(disabled: zoom <= 1.01))
                         .simultaneousGesture(canvasZoomGesture)
@@ -514,6 +574,8 @@ struct EditorPane: View {
                     }
                     if mode != .text {
                         commitTextDraftIfNeeded()
+                        textPlacementStart = nil
+                        textPlacementCurrent = nil
                     }
                     if mode == .crop {
                         resetCropSelection()
@@ -589,10 +651,13 @@ struct EditorPane: View {
             dragStart = nil
             dragCurrent = nil
             liveStrokePoints = []
-            textDragOrigin = nil
+            textDraftCanvasImage = nil
             resetCropSelection()
             clearTextSelection()
             textDraft = nil
+            textEditBuffer.text = ""
+            textPlacementStart = nil
+            textPlacementCurrent = nil
             autoBlurMatches = []
             autoBlurPreviewGeneration += 1
             isLoadingAutoBlurPreview = false
@@ -1388,7 +1453,7 @@ struct EditorPane: View {
                                 annotationFontSize = newValue
                             }
                         ),
-                        in: 10...48,
+                        in: 10...72,
                         step: 1
                     )
                     Text("\(Int(textDraft?.fontSize ?? annotationFontSize)) pt")
@@ -1396,25 +1461,58 @@ struct EditorPane: View {
                         .foregroundStyle(.secondary)
                         .monospacedDigit()
                 }
-                Text("Type in the box. Drag the handle to move. Click outside to confirm.")
+                Picker("Font", selection: draftFontNameBinding) {
+                    ForEach(TextAnnotationDraft.fontChoices, id: \.self) { name in
+                        Text(name).tag(name)
+                    }
+                }
+                .pickerStyle(.menu)
+                Picker("Align", selection: draftTextAlignmentBinding) {
+                    Image(systemName: "text.alignleft").tag("left")
+                    Image(systemName: "text.aligncenter").tag("center")
+                    Image(systemName: "text.alignright").tag("right")
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                Text("Drag the top bar to move, corner to resize. Press Done when finished.")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
                     .fixedSize(horizontal: false, vertical: true)
                 Button {
                     commitTextDraftIfNeeded()
                 } label: {
-                    Label("Confirm text", systemImage: "checkmark.circle")
+                    Label("Done", systemImage: "checkmark.circle")
                 }
                 .frame(maxWidth: .infinity)
                 .buttonStyle(.borderedProminent)
                 .controlSize(.regular)
             } else {
-                Text("Click the image to place text, or click existing text to edit.")
+                Text("Drag on the image to draw a text box, or click existing text to edit it.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
+    }
+
+    private var draftFontNameBinding: Binding<String> {
+        Binding(
+            get: { textDraft?.fontName ?? annotationFontName },
+            set: { newValue in
+                textDraft?.fontName = newValue
+                annotationFontName = newValue
+            }
+        )
+    }
+
+    private var draftTextAlignmentBinding: Binding<String> {
+        Binding(
+            get: { textDraft?.textAlignment ?? annotationTextAlignment },
+            set: { newValue in
+                textDraft?.textAlignment = newValue
+                annotationTextAlignment = newValue
+            }
+        )
     }
 
     private var draftTextColorBinding: Binding<Color> {
@@ -1576,12 +1674,26 @@ struct EditorPane: View {
 
     private func refreshAutoBlurPreview() {
         let id = item.id
+        guard let imageData = store.items.first(where: { $0.id == id })?.imageData else {
+            autoBlurMatches = []
+            isLoadingAutoBlurPreview = false
+            return
+        }
+        let notes = store.items.first(where: { $0.id == id })?.notes ?? ""
+        let existing = store.items.first(where: { $0.id == id })?.redactionRects ?? []
+        let enabledTags = SensitivePrivacySettings.autoBlurTags
         autoBlurPreviewGeneration += 1
         let generation = autoBlurPreviewGeneration
         isLoadingAutoBlurPreview = true
-        Task.detached(priority: .userInitiated) {
-            let matches = await MainActor.run {
-                store.autoBlurPreview(for: id)
+        // Vision OCR must not run on MainActor — same priority-inversion / hitch class as QR.
+        Task.detached(priority: .utility) {
+            let matches = SensitiveRegionFinder.autoBlurMatches(
+                imageData: imageData,
+                notes: notes,
+                enabledTags: enabledTags
+            ).filter { match in
+                let rect = match.region.asBlurRedaction()
+                return !existing.contains(where: { SensitiveRegionFinder.roughlyCovers($0, rect) })
             }
             await MainActor.run {
                 // item is captured at task start; use generation + live selection to drop stale OCR.
@@ -1601,7 +1713,9 @@ struct EditorPane: View {
         qrScanGeneration += 1
         let generation = qrScanGeneration
         isScanningQR = true
-        Task.detached(priority: .userInitiated) {
+        // Utility QoS: VNImageRequestHandler.perform waits on Vision’s utility threads;
+        // userInitiated/userInteractive callers produce priority-inversion warnings + hitching.
+        Task.detached(priority: .utility) {
             let payloads = ScreenshotSmartTools.detectQRCodes(in: imageData)
             await MainActor.run {
                 guard generation == qrScanGeneration, store.selectedId == id else { return }
@@ -2006,99 +2120,90 @@ struct EditorPane: View {
     }
 
     @ViewBuilder
-    private func textCanvasInteractionLayer(fitted: CGRect, imageSize: CGSize) -> some View {
+    private func textCanvasInteractionLayer(
+        fitted: CGRect,
+        imageSize: CGSize,
+        showsEditorChrome: Bool
+    ) -> some View {
         ZStack(alignment: .topLeading) {
             Color.clear
                 .contentShape(Rectangle())
-                .gesture(
-                    DragGesture(minimumDistance: 0)
-                        .onEnded { value in
-                            handleTextCanvasTap(at: value.location, fitted: fitted, imageSize: imageSize)
-                        }
-                )
+                .gesture(textPlacementGesture(fitted: fitted, imageSize: imageSize))
 
-            if let draft = textDraft {
-                textDraftEditor(draft: draft, fitted: fitted, imageSize: imageSize)
+            if let start = textPlacementStart, let current = textPlacementCurrent, textDraft == nil {
+                let rect = selectionRect(from: start, to: current)
+                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                    .strokeBorder(Color.accentColor, style: StrokeStyle(lineWidth: 1.5, dash: [5, 3]))
+                    .background(
+                        RoundedRectangle(cornerRadius: 4, style: .continuous)
+                            .fill(Color.accentColor.opacity(0.08))
+                    )
+                    .frame(width: rect.width, height: rect.height)
+                    .position(x: rect.midX, y: rect.midY)
+                    .allowsHitTesting(false)
+            }
+
+            if showsEditorChrome, textDraft != nil {
+                TextDraftEditorOverlay(
+                    draft: $textDraft,
+                    textBuffer: textEditBuffer,
+                    focusGeneration: textFocusGeneration,
+                    fitted: fitted,
+                    hostSize: CGSize(width: fitted.width, height: fitted.height),
+                    imageSize: imageSize,
+                    onDone: { commitTextDraftIfNeeded() }
+                )
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    private func textDraftEditor(draft: TextAnnotationDraft, fitted: CGRect, imageSize: CGSize) -> some View {
-        let scale = imageSize.width > 0 ? fitted.width / imageSize.width : 1
-        let fontSize = CGFloat(draft.fontSize) * scale
-        let origin = CGPoint(
-            x: fitted.minX + CGFloat(draft.x) * fitted.width,
-            y: fitted.minY + CGFloat(draft.y) * fitted.height
-        )
-
-        return HStack(spacing: 4) {
-            Image(systemName: "arrow.up.and.down.and.arrow.left.and.right")
-                .font(.system(size: max(10, fontSize * 0.55)))
-                .foregroundStyle(.secondary)
-                .padding(.leading, 4)
-                .gesture(
-                    DragGesture()
-                        .onChanged { value in
-                            guard fitted.width > 0, fitted.height > 0 else { return }
-                            if textDragOrigin == nil {
-                                textDragOrigin = CGPoint(x: draft.x, y: draft.y)
-                            }
-                            guard let start = textDragOrigin else { return }
-                            let nx = start.x + Double(value.translation.width / fitted.width)
-                            let ny = start.y + Double(value.translation.height / fitted.height)
-                            textDraft?.x = min(max(nx, 0), 0.98)
-                            textDraft?.y = min(max(ny, 0), 0.98)
-                        }
-                        .onEnded { _ in
-                            textDragOrigin = nil
-                        }
-                )
-
-            TextField("Type here", text: Binding(
-                get: { textDraft?.text ?? "" },
-                set: { textDraft?.text = $0 }
-            ))
-            .textFieldStyle(.plain)
-            .font(.system(size: max(10, fontSize), weight: .semibold))
-            .foregroundStyle(Color(nsColor: EditorRedactionSettings.nsColor(fromHex: draft.colorHex)))
-            .focused($isTextDraftFocused)
-            .frame(minWidth: 80)
-        }
-        .padding(.vertical, 4)
-        .padding(.trailing, 8)
-        .background(
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(Color(nsColor: .windowBackgroundColor).opacity(0.92))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .strokeBorder(Color.accentColor, lineWidth: 1.5)
-        )
-        .fixedSize()
-        .offset(x: origin.x, y: origin.y)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .onAppear {
-            DispatchQueue.main.async {
-                isTextDraftFocused = true
+    private func textPlacementGesture(fitted: CGRect, imageSize: CGSize) -> some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { value in
+                guard textDraft == nil else { return }
+                guard fitted.contains(value.startLocation) else { return }
+                NSCursor.crosshair.set()
+                if textPlacementStart == nil {
+                    textPlacementStart = clampPointToFitted(value.startLocation, fitted: fitted)
+                }
+                textPlacementCurrent = clampPointToFitted(value.location, fitted: fitted)
             }
-        }
-    }
+            .onEnded { value in
+                defer {
+                    textPlacementStart = nil
+                    textPlacementCurrent = nil
+                }
 
-    private func handleTextCanvasTap(at location: CGPoint, fitted: CGRect, imageSize: CGSize) {
-        if textDraft != nil {
-            // Outside click confirms; editor sits above this layer for its own hits.
-            commitTextDraftIfNeeded()
-            return
-        }
+                // While editing, only Done (or leaving Text mode) commits — ignore outside clicks.
+                guard textDraft == nil else { return }
 
-        guard fitted.contains(location),
-              let point = normalizedPoint(from: location, fitted: fitted) else { return }
-        if let existing = hitTestTextAnnotation(at: point, fitted: fitted, imageSize: imageSize) {
-            beginEditingTextAnnotation(existing)
-        } else {
-            beginNewTextDraft(at: point)
-        }
+                guard fitted.contains(value.startLocation) else { return }
+                let start = clampPointToFitted(value.startLocation, fitted: fitted)
+                let end = clampPointToFitted(value.location, fitted: fitted)
+                let distance = hypot(end.x - start.x, end.y - start.y)
+
+                if distance < 6 {
+                    guard let point = normalizedPoint(from: start, fitted: fitted) else { return }
+                    if let existing = hitTestTextAnnotation(at: point, fitted: fitted, imageSize: imageSize) {
+                        beginEditingTextAnnotation(existing, imageSize: imageSize)
+                    } else {
+                        beginNewTextDraft(at: point)
+                    }
+                    return
+                }
+
+                let rect = selectionRect(from: start, to: end)
+                guard rect.width > 8, rect.height > 8,
+                      let origin = normalizedPoint(from: CGPoint(x: rect.minX, y: rect.minY), fitted: fitted),
+                      fitted.width > 0, fitted.height > 0 else { return }
+                beginNewTextDraft(
+                    x: origin.x,
+                    y: origin.y,
+                    width: min(max(Double(rect.width / fitted.width), 0.06), 1 - origin.x),
+                    height: min(max(Double(rect.height / fitted.height), 0.04), 1 - origin.y)
+                )
+            }
     }
 
     private func hitTestTextAnnotation(
@@ -2107,59 +2212,129 @@ struct EditorPane: View {
         imageSize: CGSize
     ) -> ImageAnnotation? {
         let current = store.items.first(where: { $0.id == item.id }) ?? item
-        let scale = imageSize.width > 0 ? fitted.width / imageSize.width : 1
         for annotation in current.annotations.reversed() where annotation.kind == .text {
-            let text = annotation.text.isEmpty ? "Text" : annotation.text
-            let font = NSFont.systemFont(ofSize: CGFloat(max(annotation.fontSize, 10)) * scale, weight: .semibold)
-            let size = (text as NSString).size(withAttributes: [.font: font])
-            let pad: CGFloat = 10
-            let width = max(Double((size.width + pad * 2) / max(fitted.width, 1)), 0.04)
-            let height = max(Double((size.height + pad * 2) / max(fitted.height, 1)), 0.03)
-            if point.x >= annotation.x,
-               point.x <= annotation.x + width,
-               point.y >= annotation.y,
-               point.y <= annotation.y + height {
+            let box = Self.normalizedTextBox(for: annotation, imageSize: imageSize)
+            if point.x >= box.x,
+               point.x <= box.x + box.width,
+               point.y >= box.y,
+               point.y <= box.y + box.height {
                 return annotation
             }
         }
         return nil
     }
 
+    private static func normalizedTextBox(
+        for annotation: ImageAnnotation,
+        imageSize: CGSize
+    ) -> (x: Double, y: Double, width: Double, height: Double) {
+        let x = min(annotation.x, annotation.x2)
+        let y = min(annotation.y, annotation.y2)
+        var width = abs(annotation.x2 - annotation.x)
+        var height = abs(annotation.y2 - annotation.y)
+        if width >= 0.02, height >= 0.02 {
+            return (x, y, width, height)
+        }
+        let text = annotation.text.isEmpty ? "Text" : annotation.text
+        let font = ScreenshotStore.annotationFont(
+            name: annotation.fontName,
+            size: CGFloat(max(annotation.fontSize, 10))
+        )
+        let attrs: [NSAttributedString.Key: Any] = [.font: font]
+        let measured = (text as NSString).boundingRect(
+            with: NSSize(
+                width: max(imageSize.width * 0.5, 120),
+                height: .greatestFiniteMagnitude
+            ),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: attrs
+        ).size
+        let iw = max(imageSize.width, 1)
+        let ih = max(imageSize.height, 1)
+        width = max(Double(measured.width / iw) + 0.02, 0.12)
+        height = max(Double(measured.height / ih) + 0.015, 0.05)
+        return (x, y, min(width, 0.9), min(height, 0.5))
+    }
+
     private func beginNewTextDraft(at point: DrawPoint) {
+        let width = 0.28
+        let height = 0.1
+        let x = min(max(point.x, 0), 1 - width)
+        let y = min(max(point.y, 0), 1 - height)
+        beginNewTextDraft(x: x, y: y, width: width, height: height)
+    }
+
+    private func beginNewTextDraft(x: Double, y: Double, width: Double, height: Double) {
+        textEditBuffer.text = ""
         textDraft = TextAnnotationDraft(
             annotationID: UUID(),
             isNew: true,
-            x: point.x,
-            y: point.y,
+            x: x,
+            y: y,
+            width: width,
+            height: height,
             text: "",
             fontSize: annotationFontSize,
-            colorHex: drawColorHex
+            fontName: annotationFontName,
+            textAlignment: annotationTextAlignment,
+            colorHex: drawColorHex,
+            isEditing: true
         )
+        // Defer bake + focus past the drag gesture / current view update to avoid
+        // "Publishing changes from within view updates" and to focus after mouse-up.
         DispatchQueue.main.async {
-            isTextDraftFocused = true
+            bakeTextDraftCanvasImage()
+            textFocusGeneration &+= 1
         }
     }
 
-    private func beginEditingTextAnnotation(_ annotation: ImageAnnotation) {
+    private func beginEditingTextAnnotation(_ annotation: ImageAnnotation, imageSize: CGSize) {
+        let box = Self.normalizedTextBox(for: annotation, imageSize: imageSize)
+        textEditBuffer.text = annotation.text
+        let fontName = annotation.fontName.isEmpty ? "System" : annotation.fontName
+        let alignment = annotation.textAlignment.isEmpty ? "left" : annotation.textAlignment
         textDraft = TextAnnotationDraft(
             annotationID: annotation.id,
             isNew: false,
-            x: annotation.x,
-            y: annotation.y,
+            x: box.x,
+            y: box.y,
+            width: box.width,
+            height: box.height,
             text: annotation.text,
             fontSize: annotation.fontSize,
-            colorHex: annotation.colorHex
+            fontName: fontName,
+            textAlignment: alignment,
+            colorHex: annotation.colorHex,
+            isEditing: true
         )
-        annotationFontSize = annotation.fontSize
-        drawColorHex = annotation.colorHex
         DispatchQueue.main.async {
-            isTextDraftFocused = true
+            annotationFontSize = annotation.fontSize
+            annotationFontName = fontName
+            annotationTextAlignment = alignment
+            drawColorHex = annotation.colorHex
+            bakeTextDraftCanvasImage()
+            textFocusGeneration &+= 1
         }
     }
 
+    private func bakeTextDraftCanvasImage() {
+        guard let draft = textDraft else {
+            textDraftCanvasImage = nil
+            return
+        }
+        textDraftCanvasImage = store.renderedImage(
+            for: item,
+            excludingAnnotationIDs: [draft.annotationID]
+        )
+    }
+
     private func commitTextDraftIfNeeded() {
-        guard let draft = textDraft else { return }
+        guard var draft = textDraft else { return }
+        // Prefer live editor buffer so keystrokes aren't mirrored into @State while typing.
+        draft.text = textEditBuffer.text
         let trimmed = draft.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let x2 = min(max(draft.x + draft.width, 0), 1)
+        let y2 = min(max(draft.y + draft.height, 0), 1)
         if draft.isNew {
             if !trimmed.isEmpty {
                 store.addAnnotation(
@@ -2168,11 +2343,13 @@ struct EditorPane: View {
                         kind: .text,
                         x: draft.x,
                         y: draft.y,
-                        x2: draft.x,
-                        y2: draft.y,
+                        x2: x2,
+                        y2: y2,
                         text: trimmed,
                         colorHex: draft.colorHex,
-                        fontSize: draft.fontSize
+                        fontSize: draft.fontSize,
+                        fontName: draft.fontName,
+                        textAlignment: draft.textAlignment
                     ),
                     for: item.id
                 )
@@ -2186,17 +2363,22 @@ struct EditorPane: View {
                     kind: .text,
                     x: draft.x,
                     y: draft.y,
-                    x2: draft.x,
-                    y2: draft.y,
+                    x2: x2,
+                    y2: y2,
                     text: trimmed,
                     colorHex: draft.colorHex,
-                    fontSize: draft.fontSize
+                    fontSize: draft.fontSize,
+                    fontName: draft.fontName,
+                    textAlignment: draft.textAlignment
                 ),
                 for: item.id
             )
         }
         textDraft = nil
-        isTextDraftFocused = false
+        textEditBuffer.text = ""
+        textDraftCanvasImage = nil
+        textPlacementStart = nil
+        textPlacementCurrent = nil
     }
 
     private func saveAs() {
@@ -2209,14 +2391,415 @@ struct EditorPane: View {
     }
 }
 
+private struct TextDraftEditorOverlay: View {
+    @Binding var draft: TextAnnotationDraft?
+    let textBuffer: AnnotateTextBuffer
+    var focusGeneration: Int
+    let fitted: CGRect
+    /// Full scroll-host size; format bar is clamped inside so it stays tappable.
+    let hostSize: CGSize
+    let imageSize: CGSize
+    var onDone: () -> Void
+
+    /// Local-only so dragging/resizing does not thrash the parent canvas.
+    @State private var dragOffset: CGSize = .zero
+    @State private var resizeDelta: CGSize = .zero
+
+    private let minBoxSide: CGFloat = 36
+    private let handleSize: CGFloat = 12
+    private let moveBarHeight: CGFloat = 18
+    private let formatBarHeight: CGFloat = 36
+    private static let canvasSpace = "textDraftCanvas"
+    private static let minFontSize: Double = 10
+    private static let maxFontSize: Double = 72
+
+    var body: some View {
+        if let draft {
+            let scale = imageSize.width > 0 ? fitted.width / imageSize.width : 1
+            // Match on-image bake size: annotation points scaled to the fitted canvas.
+            let fontSize = max(10, CGFloat(draft.fontSize) * scale)
+            let baseWidth = max(CGFloat(draft.width) * fitted.width, minBoxSide)
+            let baseHeight = max(CGFloat(draft.height) * fitted.height, minBoxSide)
+            let width = max(baseWidth + resizeDelta.width, minBoxSide)
+            let height = max(baseHeight + resizeDelta.height, minBoxSide)
+            let origin = CGPoint(
+                x: fitted.minX + CGFloat(draft.x) * fitted.width + dragOffset.width,
+                y: fitted.minY + CGFloat(draft.y) * fitted.height + dragOffset.height
+            )
+            // Prefer above the move strip / outside the picture; keep inside the host so hits work.
+            let barOrigin = CGPoint(
+                x: min(max(origin.x, 4), max(hostSize.width - 320, 4)),
+                y: min(
+                    max(origin.y - moveBarHeight - formatBarHeight - 6, 4),
+                    max(hostSize.height - formatBarHeight - 4, 4)
+                )
+            )
+
+            ZStack(alignment: .topLeading) {
+                formattingBar(draft: draft)
+                    .offset(x: barOrigin.x, y: barOrigin.y)
+
+                ZStack(alignment: .topLeading) {
+                    // Move strip sits *above* the text box so stored coords match bake layout.
+                    RoundedRectangle(cornerRadius: 3, style: .continuous)
+                        .fill(Color.accentColor.opacity(0.85))
+                        .frame(width: width, height: moveBarHeight)
+                        .contentShape(Rectangle())
+                        .overlay(
+                            Image(systemName: "arrow.up.and.down.and.arrow.left.and.right")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundStyle(.white)
+                        )
+                        .offset(y: -moveBarHeight)
+                        .gesture(moveGesture())
+                        .help("Drag to move")
+
+                    // Text area = annotation rect (no chrome insets — must match ScreenshotStore bake).
+                    boxChrome(draft: draft, fontSize: fontSize, width: width, height: height)
+                        .frame(width: width, height: height)
+
+                    // Corner resize — available while editing.
+                    RoundedRectangle(cornerRadius: 2, style: .continuous)
+                        .fill(Color.accentColor)
+                        .frame(width: handleSize, height: handleSize)
+                        .contentShape(Rectangle())
+                        .overlay(
+                            Image(systemName: "arrow.up.left.and.arrow.down.right")
+                                .font(.system(size: 7, weight: .bold))
+                                .foregroundStyle(.white)
+                        )
+                        .offset(x: width - handleSize / 2, y: height - handleSize / 2)
+                        .gesture(resizeGesture(baseWidth: baseWidth, baseHeight: baseHeight))
+                        .help("Drag to resize")
+                }
+                .offset(x: origin.x, y: origin.y)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            // Stable space so drag deltas track the cursor while the box moves.
+            .coordinateSpace(name: Self.canvasSpace)
+            .onAppear {
+                dragOffset = .zero
+                resizeDelta = .zero
+                textBuffer.text = draft.text
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func formattingBar(draft: TextAnnotationDraft) -> some View {
+        HStack(spacing: 6) {
+            Button {
+                adjustFontSize(by: -2)
+            } label: {
+                Image(systemName: "textformat.size.smaller")
+            }
+            .buttonStyle(.borderless)
+            .help("Smaller")
+
+            Text("\(Int(draft.fontSize))")
+                .font(.caption.monospacedDigit())
+                .frame(minWidth: 24)
+                .help("Font size in image points")
+
+            Button {
+                adjustFontSize(by: 2)
+            } label: {
+                Image(systemName: "textformat.size.larger")
+            }
+            .buttonStyle(.borderless)
+            .help("Larger")
+
+            Divider().frame(height: 14)
+
+            Picker("", selection: fontNameBinding) {
+                ForEach(TextAnnotationDraft.fontChoices, id: \.self) { name in
+                    Text(name).tag(name)
+                }
+            }
+            .labelsHidden()
+            .frame(maxWidth: 120)
+            .controlSize(.small)
+
+            Picker("", selection: alignmentBinding) {
+                Image(systemName: "text.alignleft").tag("left")
+                Image(systemName: "text.aligncenter").tag("center")
+                Image(systemName: "text.alignright").tag("right")
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .frame(width: 90)
+            .controlSize(.small)
+
+            Divider().frame(height: 14)
+
+            Button("Done") {
+                onDone()
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.small)
+            .help("Place text on the image")
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .shadow(color: .black.opacity(0.12), radius: 3, y: 1)
+        )
+    }
+
+    private func adjustFontSize(by delta: Double) {
+        guard let current = draft?.fontSize else { return }
+        draft?.fontSize = min(Self.maxFontSize, max(Self.minFontSize, current + delta))
+    }
+
+    private var fontNameBinding: Binding<String> {
+        Binding(
+            get: { draft?.fontName ?? "System" },
+            set: { draft?.fontName = $0 }
+        )
+    }
+
+    private var alignmentBinding: Binding<String> {
+        Binding(
+            get: { draft?.textAlignment ?? "left" },
+            set: { draft?.textAlignment = $0 }
+        )
+    }
+
+    private func boxChrome(
+        draft: TextAnnotationDraft,
+        fontSize: CGFloat,
+        width: CGFloat,
+        height: CGFloat
+    ) -> some View {
+        let nsFont = ScreenshotStore.annotationFont(name: draft.fontName, size: fontSize)
+        let nsColor = EditorRedactionSettings.nsColor(fromHex: draft.colorHex)
+        let alignment = ScreenshotStore.nsTextAlignment(draft.textAlignment)
+
+        return ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                .fill(Color(nsColor: .textBackgroundColor).opacity(0.94))
+            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                .strokeBorder(Color.accentColor, lineWidth: 2)
+
+            // Fill the annotation box edge-to-edge so Done bake matches live typing.
+            AnnotateTextEditor(
+                textBuffer: textBuffer,
+                focusGeneration: focusGeneration,
+                font: nsFont,
+                textColor: nsColor,
+                alignment: alignment
+            )
+        }
+        .frame(width: width, height: height)
+        .shadow(color: .black.opacity(0.12), radius: 2, y: 1)
+    }
+
+    private func moveGesture() -> some Gesture {
+        DragGesture(minimumDistance: 1, coordinateSpace: .named(Self.canvasSpace))
+            .onChanged { value in
+                // Prefer cursor delta in a fixed parent space — local `.translation`
+                // drifts once this view moves under the pointer.
+                dragOffset = CGSize(
+                    width: value.location.x - value.startLocation.x,
+                    height: value.location.y - value.startLocation.y
+                )
+            }
+            .onEnded { value in
+                let delta = CGSize(
+                    width: value.location.x - value.startLocation.x,
+                    height: value.location.y - value.startLocation.y
+                )
+                defer { dragOffset = .zero }
+                guard fitted.width > 0, fitted.height > 0 else { return }
+                guard hypot(delta.width, delta.height) > 1, let draft else { return }
+                let nx = draft.x + Double(delta.width / fitted.width)
+                let ny = draft.y + Double(delta.height / fitted.height)
+                let maxX = max(1 - draft.width, 0)
+                let maxY = max(1 - draft.height, 0)
+                self.draft?.x = min(max(nx, 0), maxX)
+                self.draft?.y = min(max(ny, 0), maxY)
+            }
+    }
+
+    private func resizeGesture(
+        baseWidth: CGFloat,
+        baseHeight: CGFloat
+    ) -> some Gesture {
+        DragGesture(minimumDistance: 1, coordinateSpace: .named(Self.canvasSpace))
+            .onChanged { value in
+                resizeDelta = CGSize(
+                    width: value.location.x - value.startLocation.x,
+                    height: value.location.y - value.startLocation.y
+                )
+            }
+            .onEnded { value in
+                let delta = CGSize(
+                    width: value.location.x - value.startLocation.x,
+                    height: value.location.y - value.startLocation.y
+                )
+                defer { resizeDelta = .zero }
+                guard fitted.width > 0, fitted.height > 0, let draft else { return }
+                let newWidth = max(baseWidth + delta.width, minBoxSide)
+                let newHeight = max(baseHeight + delta.height, minBoxSide)
+                var width = Double(newWidth / fitted.width)
+                var height = Double(newHeight / fitted.height)
+                width = min(max(width, 0.05), max(1 - draft.x, 0.05))
+                height = min(max(height, 0.04), max(1 - draft.y, 0.04))
+                self.draft?.width = width
+                self.draft?.height = height
+            }
+    }
+}
+
+/// Plain buffer so typing does not publish SwiftUI `@State` on every keystroke.
+private final class AnnotateTextBuffer {
+    var text: String = ""
+}
+
+/// AppKit text view so font family and paragraph alignment apply while typing.
+private struct AnnotateTextEditor: NSViewRepresentable {
+    let textBuffer: AnnotateTextBuffer
+    var focusGeneration: Int
+    var font: NSFont
+    var textColor: NSColor
+    var alignment: NSTextAlignment
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    func makeNSView(context: Context) -> NSScrollView {
+        let scroll = NSTextView.scrollableTextView()
+        scroll.drawsBackground = false
+        scroll.hasVerticalScroller = false
+        scroll.hasHorizontalScroller = false
+        scroll.borderType = .noBorder
+        scroll.autohidesScrollers = true
+
+        let textView = scroll.documentView as! NSTextView
+        textView.delegate = context.coordinator
+        textView.isRichText = false
+        textView.allowsUndo = true
+        textView.drawsBackground = false
+        textView.isVerticallyResizable = true
+        textView.isHorizontallyResizable = false
+        textView.textContainerInset = .zero
+        textView.textContainer?.lineFragmentPadding = 0
+        textView.textContainer?.widthTracksTextView = true
+        context.coordinator.textView = textView
+        applyStyle(to: textView, string: textBuffer.text, coordinator: context.coordinator)
+        return scroll
+    }
+
+    func updateNSView(_ scroll: NSScrollView, context: Context) {
+        guard let textView = scroll.documentView as? NSTextView else { return }
+        context.coordinator.parent = self
+
+        let styleChanged =
+            abs(context.coordinator.appliedFontSize - font.pointSize) > 0.05
+            || context.coordinator.appliedFontName != font.fontName
+            || context.coordinator.appliedColorHex != colorKey
+            || context.coordinator.appliedAlignment != alignment.rawValue
+
+        // Keep whatever the user typed in the text view; only restyle when formatting changes.
+        if styleChanged {
+            let selected = textView.selectedRanges
+            let live = textView.string
+            textBuffer.text = live
+            applyStyle(to: textView, string: live, coordinator: context.coordinator)
+            textView.selectedRanges = selected
+        }
+
+        if focusGeneration != context.coordinator.lastFocusGeneration {
+            context.coordinator.lastFocusGeneration = focusGeneration
+            // After place-drag, wait a beat so mouse-up doesn't steal first responder.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak textView] in
+                guard let textView, let window = textView.window else { return }
+                window.makeFirstResponder(textView)
+            }
+        }
+    }
+
+    private var colorKey: String {
+        textColor.usingColorSpace(.sRGB)?.hexString ?? textColor.description
+    }
+
+    /// Rebuilds the whole attributed string so already-typed characters pick up size/font/color.
+    private func applyStyle(to textView: NSTextView, string: String, coordinator: Coordinator) {
+        coordinator.isApplyingStyle = true
+        defer { coordinator.isApplyingStyle = false }
+
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = alignment
+        paragraph.lineBreakMode = .byWordWrapping
+        let attrs: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: textColor,
+            .paragraphStyle: paragraph
+        ]
+        textView.textStorage?.beginEditing()
+        textView.textStorage?.setAttributedString(NSAttributedString(string: string, attributes: attrs))
+        textView.textStorage?.endEditing()
+        textView.typingAttributes = attrs
+        textView.font = font
+        textView.textColor = textColor
+        textView.alignment = alignment
+        coordinator.appliedFontSize = font.pointSize
+        coordinator.appliedFontName = font.fontName
+        coordinator.appliedColorHex = colorKey
+        coordinator.appliedAlignment = alignment.rawValue
+    }
+
+    final class Coordinator: NSObject, NSTextViewDelegate {
+        var parent: AnnotateTextEditor
+        weak var textView: NSTextView?
+        var appliedFontSize: CGFloat = -1
+        var appliedFontName: String = ""
+        var appliedColorHex: String = ""
+        var appliedAlignment: Int = .min
+        var isApplyingStyle = false
+        var lastFocusGeneration: Int = 0
+
+        init(_ parent: AnnotateTextEditor) {
+            self.parent = parent
+        }
+
+        func textDidChange(_ notification: Notification) {
+            guard !isApplyingStyle else { return }
+            guard let textView = notification.object as? NSTextView else { return }
+            // Write to the plain buffer only — never publish SwiftUI state from AppKit callbacks.
+            parent.textBuffer.text = textView.string
+        }
+    }
+}
+
+private extension NSColor {
+    var hexString: String {
+        guard let rgb = usingColorSpace(.sRGB) else { return description }
+        let r = Int(round(rgb.redComponent * 255))
+        let g = Int(round(rgb.greenComponent * 255))
+        let b = Int(round(rgb.blueComponent * 255))
+        return String(format: "#%02X%02X%02X", r, g, b)
+    }
+}
+
 private struct TextAnnotationDraft: Equatable {
     var annotationID: UUID
     var isNew: Bool
     var x: Double
     var y: Double
+    var width: Double
+    var height: Double
     var text: String
     var fontSize: Double
+    var fontName: String
+    var textAlignment: String
     var colorHex: String
+    var isEditing: Bool
+
+    static let fontChoices = ["System", "Helvetica Neue", "Arial", "Times New Roman", "Menlo"]
 }
 
 private extension View {
@@ -2249,9 +2832,10 @@ struct MenuBarGalleryView: View {
                     .foregroundStyle(.secondary)
                     .padding([.horizontal, .top])
             }
+
             Text("Recent shots")
                 .font(.headline)
-                .padding([.horizontal, pause.isPaused ? .bottom : .top])
+                .padding([.horizontal, .top])
             let recent = Array(store.items.prefix(max(menuBarRecentCount, 1)))
             ForEach(Array(recent.enumerated()), id: \.element.id) { index, item in
                 let _ = protectedTagsRaw
@@ -2304,7 +2888,7 @@ struct MenuBarGalleryView: View {
             BuddyClearHistoryButton(itemNoun: "screenshots") {
                 store.clearAllHistory()
             }
-            BuddyMenuBarAppControls(appName: "Screenshot Buddy", brand: .screenshotBuddy)
+            BuddyMenuBarAppControls(appName: "Capture Buddy", brand: .screenshotBuddy)
         }
         .accessibilityIdentifier("menu-bar-gallery")
     }

@@ -8,7 +8,7 @@ Use this when filling **App Privacy**, **Export Compliance**, and review notes i
 |------|-----|-------|
 | Clipboard history (text + images) | JSON in UserDefaults | On device |
 | Clipboard favorites | JSON in UserDefaults | On device |
-| Screenshot gallery (images + notes) | JSON in UserDefaults | On device |
+| Screenshot gallery (images + notes) | JSON file in Application Support | On device |
 | IMAP password (OTP Buddy) | Keychain item | Keychain |
 | OTP codes | Not written to disk | Memory only, short TTL |
 

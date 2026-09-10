@@ -1,4 +1,4 @@
-# Screenshot Buddy Manifest
+# Capture Buddy Manifest
 
 See suite contract patterns from [shared-buddy](https://github.com/rodrigofranzoi/shared-buddy).
 
@@ -6,7 +6,7 @@ See suite contract patterns from [shared-buddy](https://github.com/rodrigofranzo
 
 | Field | Value |
 |-------|-------|
-| Name | Screenshot Buddy |
+| Name | Capture Buddy |
 | Bundle ID | com.buddy.screenshot |
 | Platform | macOS 13.0+ |
 | UI | SwiftUI + AppKit status item |

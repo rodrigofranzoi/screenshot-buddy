@@ -1,6 +1,13 @@
-# Store Copy — Screenshot Buddy
+# Store Copy — Capture Buddy
 
-Supported locales: `en`, `de`, `nl`, `pt`, `es`, `fr`, `it`, `ar`, `zh`, `ru`, `ja`.
+Supported locales: `en`, `nl`, `pt`, `es`, `fr`, `it`, `ar`, `zh`, `ru`, `ja`.
+
+## App Store Connect — naming (Guideline 5.2.5)
+
+**Use exactly:** `Capture Buddy`  
+**Do not use:** `Screenshot Buddy`, `Screenshot Buddy for Mac`, `Capture Buddy for Mac`, `… for macOS`, or any name that includes Apple product terms (`Mac`, `macOS`, `iPhone`, etc.).
+
+Binary display name (`CFBundleDisplayName` / `CFBundleName`) is `Capture Buddy`. Keep App Store Connect **Name** and on-device name aligned — never append “for Mac”. Bundle ID stays `com.buddy.screenshot`.
 
 ## Legal URLs (App Store Connect)
 
@@ -20,9 +27,12 @@ Initial release.
 Paste into App Store Connect → App Review Information → Notes.
 
 ```
-Screenshot Buddy is a macOS menu-bar (agent) app. There is no Dock icon by default (LSUIElement).
+Capture Buddy is a macOS menu-bar (agent) app. There is no Dock icon by default (LSUIElement).
 
 NO LOGIN / DEMO ACCOUNT REQUIRED.
+
+Launch at login: OFF by default. On first launch the app opens the main window and shows a consent popup (Not Now / Open at Login).
+It only registers as a Login Item if the user chooses Open at Login. Later launches stay menu-bar only. Change anytime in Settings → Preferences → Startup (Guideline 2.4.5(iii)).
 
 How to review:
 1. Launch the app. Look for the camera.viewfinder icon in the macOS menu bar.
@@ -31,12 +41,12 @@ How to review:
 4. Add sample images: take a screenshot (⌘⇧3 / ⌘⇧4), copy an image and Paste, or drag & drop into the gallery.
 5. Select a shot to open the editor: annotate (draw / arrow / text), crop, blur, black-box, OCR copy, color pick, QR scan, and Auto-blur for detected secrets.
 6. Sensitive items may appear blurred. Reveal with Touch ID or the Mac login password (LocalAuthentication). Unlock lasts ~10 minutes.
-7. Settings (gear): history limits, privacy/blur tags, pause capture, launch at login.
+7. Settings (gear): history limits, privacy/blur tags, pause capture, optional launch at login.
 
 Permissions / entitlements:
 - App Sandbox enabled.
-- Pictures folder read/write (watches default screenshot save locations).
-- User-selected file access for Save As / import.
+- Pictures folder read/write (and user-granted access to Desktop / custom screenshot save folder).
+- User-selected file access for Save As / import / screenshot-folder bookmark.
 - Network client: Firebase Analytics & Crashlytics only.
 
 Privacy:
@@ -57,7 +67,7 @@ Contact: use the App Store Connect account owner email if anything is unclear.
 Paste into TestFlight → Test Information → Beta App Description.
 
 ```
-Screenshot Buddy keeps your macOS screenshots in a searchable gallery with a fast editor, one-tap auto-blur for secrets, OCR, color pick, QR scan, and Touch ID for sensitive previews — plus recent shots in the menu bar.
+Capture Buddy keeps your macOS screenshots in a searchable gallery with a fast editor, one-tap auto-blur for secrets, OCR, color pick, QR scan, and Touch ID for sensitive previews — plus recent shots in the menu bar.
 ```
 
 ### What to Test
@@ -65,7 +75,7 @@ Screenshot Buddy keeps your macOS screenshots in a searchable gallery with a fas
 Paste into TestFlight → Test Information → What to Test.
 
 ```
-Thanks for testing Screenshot Buddy!
+Thanks for testing Capture Buddy!
 
 Please try:
 • Menu bar icon → recent shots popover → Open gallery
@@ -91,14 +101,14 @@ Same content as **App Review Notes** above if Apple requests Beta App Review Inf
 
 ## English (`en`)
 
-**Name:** Screenshot Buddy  
+**Name:** Capture Buddy  
 **Subtitle:** Screenshots Manager  
 **Keywords:** screenshot,capture,annotate,blur,redact,editor,menu bar,OCR,QR,search  
 **Promotional Text:** History, edit, redact & organize every shot. Auto-blur secrets, OCR, color pick, QR scan, and Touch ID for sensitive previews — gallery + menu bar.
 
 **Description:**
 
-Screenshot Buddy keeps every capture in a searchable gallery — import, paste, or drop shots in. The fast editor covers draw, arrows, text, crop, blur, and black-box.
+Capture Buddy keeps every capture in a searchable gallery — import, paste, or drop shots in. The fast editor covers draw, arrows, text, crop, blur, and black-box.
 
 It detects likely passwords, IBANs, cards, and other sensitive patterns so you can auto-blur in one tap. Copy text with OCR, pick hex colors, and scan every QR in a shot.
 
@@ -106,33 +116,16 @@ Save As, overwrite, or copy back to the clipboard. Recent shots live in the menu
 
 ---
 
-## German (`de`)
-
-**Name:** Screenshot Buddy  
-**Subtitle:** Screenshot-Manager  
-**Keywords:** screenshot,bildschirmfoto,annotieren,unschärfe,schwärzen,editor,menüleiste,OCR,QR,suche  
-**Promotional Text:** Verlauf, bearbeiten, schwärzen & organisieren. Auto-Unschärfe für Geheimnisse, OCR, Farbpipette, QR-Scan und Touch ID für sensible Vorschauen — Galerie + Menüleiste.
-
-**Description:**
-
-Screenshot Buddy speichert jede Aufnahme in einer durchsuchbaren Galerie — importieren, einfügen oder per Drag & Drop. Der schnelle Editor bietet Zeichnen, Pfeile, Text, Zuschneiden, Unschärfe und Schwarzbox.
-
-Es erkennt wahrscheinliche Passwörter, IBANs, Karten und andere sensible Muster und blendet sie mit einem Tipp automatisch aus. Text per OCR kopieren, Hex-Farben aufnehmen und jeden QR im Shot scannen.
-
-Speichern unter, überschreiben oder zurück in die Zwischenablage kopieren. Letzte Shots in der Menüleiste. Aufnahme pausieren, wenn Sie Privatsphäre brauchen. Sensible Vorschauen bleiben gesperrt bis Touch ID oder Passwort. Für macOS-Barrierefreiheit entwickelt.
-
----
-
 ## Dutch (`nl`)
 
-**Name:** Screenshot Buddy  
+**Name:** Capture Buddy  
 **Subtitle:** Screenshotmanager  
 **Keywords:** screenshot,schermafbeelding,annoteren,vervagen,redactie,editor,menubalk,OCR,QR,zoeken  
 **Promotional Text:** Bewerk, redacteer en organiseer elke shot. Auto-vervagen van geheimen, OCR, kleurenkiezer, QR-scan en Touch ID voor gevoelige previews — galerij + menubalk.
 
 **Description:**
 
-Screenshot Buddy bewaart al je captures in een doorzoekbare galerij — importeer, plak of sleep shots erin. De snelle editor biedt tekenen, pijlen, tekst, bijsnijden, vervagen en zwartmaken.
+Capture Buddy bewaart al je captures in een doorzoekbare galerij — importeer, plak of sleep shots erin. De snelle editor biedt tekenen, pijlen, tekst, bijsnijden, vervagen en zwartmaken.
 
 Het detecteert waarschijnlijke wachtwoorden, IBANs, kaarten en andere gevoelige patronen zodat je met één tik automatisch kunt vervagen. Kopieer tekst met OCR, kies hex-kleuren en scan elke QR in een shot.
 
@@ -142,14 +135,14 @@ Opslaan als, overschrijven of terugkopiëren naar het klembord. Recente shots zi
 
 ## Portuguese (`pt`)
 
-**Name:** Screenshot Buddy  
+**Name:** Capture Buddy  
 **Subtitle:** Gestor de capturas  
 **Keywords:** screenshot,captura,anotar,desfoque,redação,editor,barra de menus,OCR,QR,pesquisa  
 **Promotional Text:** Edite, redija e organize cada captura. Desfoque automático, OCR, seletor de cor, QR e Touch ID para pré-visualizações sensíveis — galeria + barra de menus.
 
 **Description:**
 
-O Screenshot Buddy guarda cada captura numa galeria pesquisável — importe, cole ou largue shots. O editor rápido inclui desenho, setas, texto, recorte, desfoque e caixa preta.
+O Capture Buddy guarda cada captura numa galeria pesquisável — importe, cole ou largue shots. O editor rápido inclui desenho, setas, texto, recorte, desfoque e caixa preta.
 
 Deteta passwords, IBANs, cartões e outros padrões sensíveis para desfocar automaticamente com um toque. Copie texto com OCR, escolha cores hex e leia cada QR na captura.
 
@@ -159,14 +152,14 @@ Guardar como, substituir ou copiar de volta para a área de transferência. Capt
 
 ## Spanish (`es`)
 
-**Name:** Screenshot Buddy  
+**Name:** Capture Buddy  
 **Subtitle:** Gestor de capturas  
 **Keywords:** captura,screenshot,anotar,desenfoque,redacción,editor,barra de menús,OCR,QR,buscar  
 **Promotional Text:** Edita, redacta y organiza cada captura. Desenfoque automático, OCR, selector de color, QR y Touch ID para vistas previas sensibles — galería + barra de menús.
 
 **Description:**
 
-Screenshot Buddy guarda cada captura en una galería buscable — importa, pega o suelta capturas. El editor rápido incluye dibujo, flechas, texto, recorte, desenfoque y caja negra.
+Capture Buddy guarda cada captura en una galería buscable — importa, pega o suelta capturas. El editor rápido incluye dibujo, flechas, texto, recorte, desenfoque y caja negra.
 
 Detecta contraseñas, IBAN, tarjetas y otros patrones sensibles para desenfocar automáticamente con un toque. Copia texto con OCR, elige colores hex y escanea cada QR de la captura.
 
@@ -176,14 +169,14 @@ Guardar como, sobrescribir o copiar al portapapeles. Capturas recientes en la ba
 
 ## French (`fr`)
 
-**Name:** Screenshot Buddy  
+**Name:** Capture Buddy  
 **Subtitle:** Gestionnaire de captures  
 **Keywords:** capture,screenshot,annoter,flou,rédaction,éditeur,barre de menus,OCR,QR,recherche  
 **Promotional Text:** Éditez, masquez et organisez chaque capture. Flou auto des secrets, OCR, pipette, scan QR et Touch ID pour les aperçus sensibles — galerie + barre de menus.
 
 **Description:**
 
-Screenshot Buddy regroupe toutes vos captures dans une galerie consultable — importez, collez ou déposez des shots. L’éditeur rapide couvre dessin, flèches, texte, recadrage, flou et cadre noir.
+Capture Buddy regroupe toutes vos captures dans une galerie consultable — importez, collez ou déposez des shots. L’éditeur rapide couvre dessin, flèches, texte, recadrage, flou et cadre noir.
 
 Il détecte mots de passe, IBAN, cartes et autres motifs sensibles pour flouter automatiquement en un tap. Copiez du texte via OCR, prélevez des couleurs hex et scannez chaque QR.
 
@@ -193,14 +186,14 @@ Enregistrer sous, écraser ou recopier dans le presse-papiers. Captures récente
 
 ## Italian (`it`)
 
-**Name:** Screenshot Buddy  
+**Name:** Capture Buddy  
 **Subtitle:** Gestore di screenshot  
 **Keywords:** screenshot,cattura,annotare,sfocatura,redazione,editor,barra dei menu,OCR,QR,cerca  
 **Promotional Text:** Modifica, redigi e organizza ogni scatto. Auto-sfocatura dei segreti, OCR, selettore colore, scansione QR e Touch ID per anteprime sensibili — galleria + barra dei menu.
 
 **Description:**
 
-Screenshot Buddy conserva ogni cattura in una galleria ricercabile — importa, incolla o trascina gli scatti. L’editor veloce include disegno, frecce, testo, ritaglio, sfocatura e riquadro nero.
+Capture Buddy conserva ogni cattura in una galleria ricercabile — importa, incolla o trascina gli scatti. L’editor veloce include disegno, frecce, testo, ritaglio, sfocatura e riquadro nero.
 
 Rileva password, IBAN, carte e altri pattern sensibili per sfocare automaticamente con un tocco. Copia testo con OCR, preleva colori esadecimali e scansiona ogni QR.
 
@@ -210,14 +203,14 @@ Salva con nome, sovrascrivi o ricopia negli appunti. Scatti recenti nella barra 
 
 ## Arabic (`ar`)
 
-**Name:** Screenshot Buddy  
+**Name:** Capture Buddy  
 **Subtitle:** مدير لقطات الشاشة  
 **Keywords:** لقطة شاشة,تحرير,تمويه,حجب,محرر,شريط القوائم,OCR,QR,بحث  
 **Promotional Text:** عدّل واحجب ونظّم كل لقطة. تمويه تلقائي للأسرار وOCR والتقاط الألوان ومسح QR وTouch ID للمعاينات الحساسة — المعرض + شريط القوائم.
 
 **Description:**
 
-يحفظ Screenshot Buddy كل لقطة في معرض قابل للبحث — استورد أو الصق أو أفلت اللقطات. يمنحك المحرر السريع رسمًا وأسهمًا ونصًا وقصًا وتمويهًا وصندوقًا أسود.
+يحفظ Capture Buddy كل لقطة في معرض قابل للبحث — استورد أو الصق أو أفلت اللقطات. يمنحك المحرر السريع رسمًا وأسهمًا ونصًا وقصًا وتمويهًا وصندوقًا أسود.
 
 يكتشف كلمات المرور وIBAN والبطاقات وأنماطًا حساسة أخرى لتمويهها تلقائيًا بنقرة واحدة. انسخ النص بـ OCR والتقط ألوان hex وامسح كل رمز QR في اللقطة.
 
@@ -227,14 +220,14 @@ Salva con nome, sovrascrivi o ricopia negli appunti. Scatti recenti nella barra 
 
 ## Chinese Simplified (`zh`)
 
-**Name:** Screenshot Buddy  
+**Name:** Capture Buddy  
 **Subtitle:** 截图管理器  
 **Keywords:** 截图,批注,模糊,遮挡,编辑器,菜单栏,OCR,二维码,搜索  
 **Promotional Text:** 编辑、遮挡并整理每张截图。自动模糊敏感信息，OCR、取色、扫二维码，以及 Touch ID 解锁敏感预览——图库 + 菜单栏。
 
 **Description:**
 
-Screenshot Buddy 将每张截图保存在可搜索的图库中——支持导入、粘贴或拖放。快速编辑器提供绘制、箭头、文字、裁剪、模糊与黑框。
+Capture Buddy 将每张截图保存在可搜索的图库中——支持导入、粘贴或拖放。快速编辑器提供绘制、箭头、文字、裁剪、模糊与黑框。
 
 可检测密码、IBAN、银行卡等敏感内容，一键自动模糊。用 OCR 复制文字，拾取十六进制颜色，并扫描截图中的每个二维码。
 
@@ -244,14 +237,14 @@ Screenshot Buddy 将每张截图保存在可搜索的图库中——支持导入
 
 ## Russian (`ru`)
 
-**Name:** Screenshot Buddy  
+**Name:** Capture Buddy  
 **Subtitle:** Менеджер скриншотов  
 **Keywords:** скриншот,снимок,разметка,размытие,редактор,меню,OCR,QR,поиск  
 **Promotional Text:** Правьте, маскируйте и упорядочивайте каждый снимок. Авторазмытие секретов, OCR, пипетка, QR и Touch ID для скрытых превью — галерея + меню.
 
 **Description:**
 
-Screenshot Buddy хранит все снимки в удобной галерее с поиском — импорт, вставка или перетаскивание. Быстрый редактор: рисование, стрелки, текст, обрезка, размытие и чёрный блок.
+Capture Buddy хранит все снимки в удобной галерее с поиском — импорт, вставка или перетаскивание. Быстрый редактор: рисование, стрелки, текст, обрезка, размытие и чёрный блок.
 
 Находит пароли, IBAN, карты и другие чувствительные шаблоны — авторазмытие в один тап. Копируйте текст через OCR, берите hex-цвета и сканируйте каждый QR на снимке.
 
@@ -261,14 +254,14 @@ Screenshot Buddy хранит все снимки в удобной галере
 
 ## Japanese (`ja`)
 
-**Name:** Screenshot Buddy  
+**Name:** Capture Buddy  
 **Subtitle:** スクリーンショット管理  
 **Keywords:** スクリーンショット,注釈,ぼかし,墨消し,エディタ,メニューバー,OCR,QR,検索  
 **Promotional Text:** すべてのショットを編集・墨消し・整理。秘密の自動ぼかし、OCR、カラーピッカー、QR 読み取り、機密プレビューの Touch ID — ギャラリー＋メニューバー。
 
 **Description:**
 
-Screenshot Buddy はすべてのショットを検索可能なギャラリーに保存し、インポート・ペースト・ドロップに対応。描画・矢印・テキスト・切り抜き・ぼかし・黒塗りができる高速エディタを提供します。
+Capture Buddy はすべてのショットを検索可能なギャラリーに保存し、インポート・ペースト・ドロップに対応。描画・矢印・テキスト・切り抜き・ぼかし・黒塗りができる高速エディタを提供します。
 
 パスワードや IBAN、カードなどの機密パターンを検出し、ワンタップで自動ぼかし。OCR でテキストをコピーし、HEX カラーを取得、ショット内の QR もすべて読み取ります。
 
