@@ -1,6 +1,6 @@
 # Store Copy — Capture Buddy
 
-Supported locales: `en`, `nl`, `pt`, `es`, `fr`, `it`, `ar`, `zh`, `ru`, `ja`.
+Supported locales: `en`, `de`, `nl`, `pt`, `es`, `fr`, `it`, `ar`, `zh`, `ru`, `ja`.
 
 ## App Store Connect — naming (Guideline 5.2.5)
 
@@ -113,6 +113,23 @@ Capture Buddy keeps every capture in a searchable gallery — import, paste, or 
 It detects likely passwords, IBANs, cards, and other sensitive patterns so you can auto-blur in one tap. Copy text with OCR, pick hex colors, and scan every QR in a shot.
 
 Save As, overwrite, or copy back to the clipboard. Recent shots live in the menu bar. Pause capture when you need privacy. Sensitive previews stay locked until Touch ID or your password. Built for macOS accessibility.
+
+---
+
+## German (`de`)
+
+**Name:** Capture Buddy  
+**Subtitle:** Screenshot-Manager  
+**Keywords:** Screenshot,Aufnahme,annotieren,unscharf,schwärzen,Editor,Menüleiste,OCR,QR,Suche  
+**Promotional Text:** Bearbeiten, schwärzen und organisieren. Auto-Unschärfe für Geheimnisse, OCR, Farbpipette, QR-Scan und Touch ID für sensible Vorschauen — Galerie + Menüleiste.
+
+**Description:**
+
+Capture Buddy speichert jede Aufnahme in einer durchsuchbaren Galerie — importieren, einfügen oder per Drag & Drop. Der schnelle Editor bietet Zeichnen, Pfeile, Text, Zuschneiden, Unschärfe und Schwärzen.
+
+Er erkennt wahrscheinliche Passwörter, IBANs, Karten und andere sensible Muster, damit Sie sie mit einem Tipp automatisch unscharf machen können. Text per OCR kopieren, Hex-Farben aufnehmen und jeden QR im Bild scannen.
+
+Speichern unter, überschreiben oder zurück in die Zwischenablage. Aktuelle Aufnahmen in der Menüleiste. Pausieren Sie die Aufnahme, wenn Sie Privatsphäre brauchen. Sensible Vorschauen bleiben bis Touch ID oder Passwort gesperrt. Für macOS-Bedienungshilfen gebaut.
 
 ---
 
